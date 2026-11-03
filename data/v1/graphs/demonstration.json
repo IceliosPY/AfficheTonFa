@@ -4,7 +4,7 @@
   "title": "Tableau principal",
   "description": "Tableau documentaire enrichi progressivement, fiche par fiche.",
   "notice": "Les fiches et leurs relations seront ajoutées progressivement après vérification.",
-  "updatedAt": "2026-11-03",
+  "updatedAt": "2026-11-04",
   "visual": {
     "backgroundColor": "#101211",
     "boardColor": "#4e3829",
@@ -75,6 +75,33 @@
           "note": "Titre fourni pour tester la relation ; URL, date, éditeur et contenu à vérifier."
         }
       ]
+    },
+    {
+      "id": "person-julien-rochedy",
+      "label": "Julien Rochedy",
+      "category": "person",
+      "summary": "Fiche de test reliée à Papacito par la mention de l’ouvrage « Menace sur les gauchistes ».",
+      "description": "Cette fiche et l’attribution de l’ouvrage « Menace sur les gauchistes » sont ajoutées à partir d’une affirmation fournie par l’utilisateur. L’identité, la nature exacte de la contribution et la référence bibliographique restent à confirmer par une source identifiable.",
+      "status": "Fiche de test — informations à vérifier",
+      "tags": [
+        "fiche de test",
+        "attribution d’ouvrage à vérifier"
+      ],
+      "position": {
+        "x": 0,
+        "y": 2.8,
+        "rotation": -0.01
+      },
+      "sources": [
+        {
+          "id": "src-menace-sur-les-gauchistes-reference-utilisateur",
+          "title": "Menace sur les gauchistes",
+          "publisher": "Référence fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-04",
+          "note": "Titre et attribution fournis pour construire la relation ; édition, date, auteurs et source bibliographique à vérifier."
+        }
+      ]
     }
   ],
   "edges": [
@@ -98,6 +125,27 @@
         }
       ],
       "color": "#b83831"
+    },
+    {
+      "id": "rel-papacito-julien-rochedy-menace-gauchistes",
+      "source": "person-papacito",
+      "target": "person-julien-rochedy",
+      "type": "documentary",
+      "label": "Ont écrit « Menace sur les gauchistes »",
+      "description": "Coécriture mentionnée par l’utilisateur pour l’ouvrage « Menace sur les gauchistes ». Cette attribution reste à confirmer par une référence bibliographique identifiable.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-04",
+      "sources": [
+        {
+          "id": "src-menace-sur-les-gauchistes-reference-utilisateur",
+          "title": "Menace sur les gauchistes",
+          "publisher": "Référence fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-04",
+          "note": "Titre et attribution fournis pour construire la relation ; édition, date, auteurs et source bibliographique à vérifier."
+        }
+      ],
+      "color": "#f02f7d"
     }
   ]
 }
