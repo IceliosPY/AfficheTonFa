@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "graphs": [
+    {
+      "id": "demonstration",
+      "title": "Les archives de Valmont",
+      "description": "Réseau documentaire fictif destiné à démontrer le moteur sans désigner de personnes réelles.",
+      "dataUrl": "data/v1/graphs/demonstration.json"
+    }
+  ]
+}

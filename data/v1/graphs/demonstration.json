@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0",
+  "id": "demonstration",
+  "title": "Les archives de Valmont",
+  "description": "Démonstration d'un réseau documentaire fictif consacré à la circulation d'archives historiques.",
+  "notice": "Démonstration intégralement fictive. Toute ressemblance avec des personnes ou organisations existantes serait fortuite.",
+  "updatedAt": "2026-10-15",
+  "visual": { "backgroundColor": "#101211", "boardColor": "#4e3829", "accentColor": "#a92e29", "cameraDistance": 22 },
+  "nodes": [
+    {
+      "id": "org-cercle-valmont", "label": "Cercle historique de Valmont", "category": "organization",
+      "summary": "Association fictive de conservation des archives locales.",
+      "description": "Le Cercle rassemble des bénévoles qui inventorient des fonds privés et organisent des expositions documentaires.",
+      "period": { "from": "2008", "label": "Depuis 2008" }, "location": "Valmont (lieu fictif)", "status": "Association active",
+      "tags": ["archives", "histoire"], "position": { "x": -5.1, "y": 2.5, "rotation": -0.035 },
+      "sources": [{ "id": "src-bulletin-2025", "title": "Bulletin annuel fictif 2025", "publisher": "Cercle historique de Valmont", "publishedAt": "2025-12-10", "note": "Source créée pour la démonstration." }]
+    },
+    {
+      "id": "person-ana-morel", "label": "Ana Morel", "category": "person",
+      "summary": "Archiviste fictive chargée de l'inventaire du fonds Delmas.",
+      "description": "Personnage fictif. Ana coordonne la numérisation et documente la provenance de chaque pièce.",
+      "period": { "from": "2022" }, "status": "Personnage fictif", "position": { "x": -1.2, "y": 3.6, "rotation": 0.025 },
+      "sources": [{ "id": "src-entretien-ana", "title": "Entretien fictif avec l'équipe d'archives", "publisher": "Gazette de Valmont (fictive)", "publishedAt": "2025-04-18" }]
+    },
+    {
+      "id": "person-leon-varga", "label": "Léon Varga", "category": "person",
+      "summary": "Collectionneur fictif ayant confié plusieurs boîtes d'archives.",
+      "description": "Personnage fictif mentionné dans le bordereau de remise du fonds photographique.",
+      "period": { "from": "2019", "to": "2024" }, "status": "Personnage fictif", "position": { "x": 2.2, "y": 3.1, "rotation": -0.02 },
+      "sources": [{ "id": "src-bordereau-varga", "title": "Bordereau fictif de remise Varga", "publisher": "Archives municipales fictives", "publishedAt": "2024-06-03" }]
+    },
+    {
+      "id": "case-inventaire-17", "label": "Inventaire n° 17", "category": "case",
+      "summary": "Procédure fictive de clarification de provenance d'un lot de photographies.",
+      "description": "La procédure documente une divergence de dates entre le registre d'entrée et les annotations au dos des tirages. Aucun fait délictueux n'est allégué.",
+      "period": { "from": "2024-09", "to": "2025-02" }, "status": "Dossier clos", "position": { "x": 5.3, "y": 1.7, "rotation": 0.04 },
+      "sources": [{ "id": "src-rapport-17", "title": "Rapport fictif de clôture de l'inventaire 17", "publisher": "Archives municipales fictives", "publishedAt": "2025-02-14" }]
+    },
+    {
+      "id": "event-exposition", "label": "Exposition « Traces de papier »", "category": "event",
+      "summary": "Exposition fictive présentant une sélection de documents contextualisés.",
+      "description": "Événement fictif organisé dans la salle municipale de Valmont avec un parcours accessible et des notices de provenance.",
+      "period": { "from": "2025-05-08", "to": "2025-09-14" }, "location": "Valmont (lieu fictif)", "position": { "x": -2.7, "y": -2.8, "rotation": -0.045 },
+      "sources": [{ "id": "src-programme-expo", "title": "Programme fictif de l'exposition", "publisher": "Ville de Valmont (fictive)", "publishedAt": "2025-04-02" }]
+    },
+    {
+      "id": "document-carnet-bleu", "label": "Le carnet bleu", "category": "document",
+      "summary": "Carnet fictif contenant des repères de classement et des dates.",
+      "description": "Objet documentaire inventé pour illustrer le lien entre une pièce, son déposant et un inventaire.",
+      "period": { "from": "1968", "to": "1971" }, "position": { "x": 2.5, "y": -2.4, "rotation": 0.055 },
+      "sources": [{ "id": "src-notice-carnet", "title": "Notice descriptive fictive du carnet bleu", "publisher": "Catalogue Valmont", "publishedAt": "2025-01-12" }]
+    },
+    {
+      "id": "document-photo-gare", "label": "Photographie de la gare", "category": "document",
+      "summary": "Tirage fictif daté par recoupement documentaire.",
+      "description": "Photographie créée pour la démonstration. Sa datation illustre une conclusion sourcée et révisable.",
+      "period": { "from": "1970-08" }, "position": { "x": 5.4, "y": -3.2, "rotation": -0.03 },
+      "sources": [{ "id": "src-notice-photo", "title": "Notice fictive du tirage G-42", "publisher": "Catalogue Valmont", "publishedAt": "2025-02-10" }]
+    }
+  ],
+  "edges": [
+    {
+      "id": "rel-ana-cercle", "source": "person-ana-morel", "target": "org-cercle-valmont", "type": "organizational", "label": "Coordination de l'inventaire",
+      "description": "Ana Morel coordonne bénévolement l'inventaire du fonds pour le Cercle.", "period": { "from": "2022" }, "documentaryStatus": "established", "lastVerifiedAt": "2026-10-01",
+      "sources": [{ "id": "src-bulletin-2025", "title": "Bulletin annuel fictif 2025", "publisher": "Cercle historique de Valmont", "publishedAt": "2025-12-10" }]
+    },
+    {
+      "id": "rel-varga-carnet", "source": "person-leon-varga", "target": "document-carnet-bleu", "type": "documentary", "label": "Remise documentée",
+      "description": "Le bordereau fictif indique que le carnet faisait partie du lot remis par Léon Varga.", "period": { "from": "2024-06-03" }, "documentaryStatus": "established", "lastVerifiedAt": "2026-10-01",
+      "sources": [{ "id": "src-bordereau-varga", "title": "Bordereau fictif de remise Varga", "publisher": "Archives municipales fictives", "publishedAt": "2024-06-03" }]
+    },
+    {
+      "id": "rel-carnet-inventaire", "source": "document-carnet-bleu", "target": "case-inventaire-17", "type": "documentary", "label": "Élément de comparaison",
+      "description": "Les dates du carnet ont servi à comparer les annotations des photographies.", "period": { "from": "2024-09", "to": "2025-02" }, "documentaryStatus": "established", "lastVerifiedAt": "2026-10-01",
+      "sources": [{ "id": "src-rapport-17", "title": "Rapport fictif de clôture de l'inventaire 17", "publisher": "Archives municipales fictives", "publishedAt": "2025-02-14" }]
+    },
+    {
+      "id": "rel-photo-inventaire", "source": "document-photo-gare", "target": "case-inventaire-17", "type": "documentary", "label": "Datation clarifiée",
+      "description": "La photographie G-42 figure parmi les pièces dont la date a été clarifiée.", "period": { "from": "2025-02" }, "documentaryStatus": "established", "lastVerifiedAt": "2026-10-01",
+      "sources": [{ "id": "src-notice-photo", "title": "Notice fictive du tirage G-42", "publisher": "Catalogue Valmont", "publishedAt": "2025-02-10" }]
+    },
+    {
+      "id": "rel-cercle-exposition", "source": "org-cercle-valmont", "target": "event-exposition", "type": "event", "label": "Organisation de l'exposition",
+      "description": "Le programme fictif attribue l'organisation de l'exposition au Cercle.", "period": { "from": "2025-05-08", "to": "2025-09-14" }, "documentaryStatus": "established", "lastVerifiedAt": "2026-10-01",
+      "sources": [{ "id": "src-programme-expo", "title": "Programme fictif de l'exposition", "publisher": "Ville de Valmont (fictive)", "publishedAt": "2025-04-02" }]
+    },
+    {
+      "id": "rel-photo-exposition", "source": "document-photo-gare", "target": "event-exposition", "type": "event", "label": "Pièce exposée",
+      "description": "Le tirage G-42 apparaît dans la liste fictive des pièces exposées.", "period": { "from": "2025-05-08", "to": "2025-09-14" }, "documentaryStatus": "established", "lastVerifiedAt": "2026-10-01",
+      "sources": [{ "id": "src-programme-expo", "title": "Programme fictif de l'exposition", "publisher": "Ville de Valmont (fictive)", "publishedAt": "2025-04-02" }]
+    }
+  ]
+}
