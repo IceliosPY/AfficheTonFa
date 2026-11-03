@@ -1,11 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { calculateMindMapLayout, type MindMapPosition } from '@affichetonfa/board-core';
-import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph, NodeCategory } from '@affichetonfa/shared-types';
-
-const categoryColors: Record<NodeCategory, string> = {
-  organization: '#d7675e', person: '#62a8ad', case: '#d0a254', event: '#9582ba', document: '#96a36a',
-};
+import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph } from '@affichetonfa/shared-types';
 
 @Component({
   selector: 'atf-mind-map',
@@ -23,12 +19,12 @@ const categoryColors: Record<NodeCategory, string> = {
     </div>
   `,
   styles: [`
-    :host,.mind-host{display:block;width:100%;height:100%;min-height:300px;position:relative;overflow:hidden;background:#0d100f}
+    :host,.mind-host{display:block;width:100%;height:100%;min-height:300px;position:relative;overflow:hidden;background:#211238}
     canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
     canvas:active{cursor:grabbing}
     .loading{position:absolute;left:50%;top:50%;translate:-50% -50%;padding:.75rem 1rem;background:#121412e8;border:1px solid #ffffff26;color:#eee7d9;font-size:12px}
-    .map-tools{position:absolute;right:16px;bottom:16px;display:flex;background:#151816e6;border:1px solid #ffffff1a}
-    .map-tools button{min-width:34px;height:32px;border:0;border-right:1px solid #ffffff14;background:transparent;color:#aaa399;font:600 10px ui-monospace,monospace;cursor:pointer}
+    .map-tools{position:absolute;right:16px;bottom:16px;display:flex;background:#1b102ed9;border:1px solid #ff4b912e}
+    .map-tools button{min-width:34px;height:32px;border:0;border-right:1px solid #ff4b9124;background:transparent;color:#c99bb4;font:600 10px ui-monospace,monospace;cursor:pointer}
     .map-tools button:last-child{border-right:0;padding:0 11px}.map-tools button:hover{color:#fff;background:#ffffff0a}
   `],
 })
@@ -51,6 +47,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private offsetX = 0;
   private offsetY = 0;
   private pointerStart?: { x: number; y: number; offsetX: number; offsetY: number };
+  private hoveredNodeId?: string;
   private moved = false;
 
   ngAfterViewInit(): void {
@@ -142,41 +139,39 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private drawBackdrop(context: CanvasRenderingContext2D, width: number, height: number): void {
-    context.fillStyle = '#0d100f'; context.fillRect(0, 0, width, height); context.fillStyle = '#ffffff0c';
-    const spacing = Math.max(18, 34 * this.scale); const startX = ((this.offsetX % spacing) + spacing) % spacing; const startY = ((this.offsetY % spacing) + spacing) % spacing;
-    for (let x = startX; x < width; x += spacing) for (let y = startY; y < height; y += spacing) context.fillRect(x, y, 1, 1);
+    const gradient = context.createRadialGradient(width * .52, height * .46, 0, width * .52, height * .46, Math.max(width, height) * .72);
+    gradient.addColorStop(0, '#291743'); gradient.addColorStop(1, '#1b102f');
+    context.fillStyle = gradient; context.fillRect(0, 0, width, height);
   }
 
   private drawEdge(context: CanvasRenderingContext2D, edge: GraphEdge): void {
     const source = this.positions.get(edge.source); const target = this.positions.get(edge.target); if (!source || !target) return;
     const selected = edge.id === this.selectedEdgeId; const related = this.selectedNodeId === edge.source || this.selectedNodeId === edge.target;
-    context.beginPath(); context.moveTo(source.x, source.y);
-    const bend = Math.max(45, Math.abs(target.x - source.x) * .42);
-    context.bezierCurveTo(source.x + Math.sign(target.x - source.x || 1) * bend, source.y, target.x - Math.sign(target.x - source.x || 1) * bend, target.y, target.x, target.y);
-    context.strokeStyle = selected ? '#e55349' : related ? '#bd6a62' : edge.documentaryStatus === 'alleged' ? '#b48c48aa' : '#76837a80';
-    context.lineWidth = (selected ? 4 : related ? 2.6 : 1.35) / Math.max(this.scale, .45); context.stroke();
+    context.beginPath(); context.moveTo(source.x, source.y); context.lineTo(target.x, target.y);
+    context.strokeStyle = selected ? '#ff77b2' : related ? '#ff4c98' : edge.documentaryStatus === 'alleged' ? '#f12f7ca8' : '#ee347fbf';
+    context.lineWidth = (selected ? 2 : related ? 1.35 : .8) / Math.max(this.scale, .5); context.stroke();
   }
 
   private drawNode(context: CanvasRenderingContext2D, node: GraphNode): void {
     const position = this.positions.get(node.id); if (!position) return;
-    const root = position.depth === 0; const selected = node.id === this.selectedNodeId; const radius = this.nodeRadius(node, root);
-    const showLabel = selected || root || (this.graph?.nodes.length ?? 0) <= 120 || this.scale >= 1.1;
+    const selected = node.id === this.selectedNodeId; const hovered = node.id === this.hoveredNodeId; const radius = this.nodeRadius(node);
+    const showLabel = selected || hovered;
     context.save(); context.translate(position.x, position.y);
-    context.shadowColor = categoryColors[node.category]; context.shadowBlur = selected ? 24 : root ? 16 : 9;
-    context.beginPath(); context.arc(0, 0, radius, 0, Math.PI * 2); context.fillStyle = categoryColors[node.category]; context.fill();
-    context.shadowColor = 'transparent'; context.beginPath(); context.arc(0, 0, radius * .43, 0, Math.PI * 2); context.fillStyle = '#f4eee2'; context.globalAlpha = .72; context.fill(); context.globalAlpha = 1;
-    if (selected) { context.beginPath(); context.arc(0, 0, radius + 7, 0, Math.PI * 2); context.lineWidth = 2.5; context.strokeStyle = '#f0e7d7'; context.stroke(); }
+    context.shadowColor = '#ff3d8d'; context.shadowBlur = selected || hovered ? 14 : 4;
+    context.beginPath(); context.arc(0, 0, radius, 0, Math.PI * 2); context.fillStyle = selected ? '#ff92c1' : '#ff3d8d'; context.fill();
+    context.shadowColor = 'transparent';
+    if (selected) { context.beginPath(); context.arc(0, 0, radius + 4, 0, Math.PI * 2); context.lineWidth = 1.3; context.strokeStyle = '#ff92c1'; context.stroke(); }
     if (showLabel) {
-      context.font = `${root ? 700 : 600} ${root ? 15 : 12}px ui-sans-serif,system-ui,sans-serif`; context.textBaseline = 'middle';
-      const label = this.ellipsize(context, node.label, root ? 190 : 145); const labelX = radius + 10;
-      context.lineWidth = 4; context.lineJoin = 'round'; context.strokeStyle = '#0d100f'; context.strokeText(label, labelX, 0);
-      context.fillStyle = selected ? '#fff' : '#d9d4ca'; context.fillText(label, labelX, 0);
+      context.font = '600 11px ui-sans-serif,system-ui,sans-serif'; context.textBaseline = 'middle';
+      const label = this.ellipsize(context, node.label, 150); const labelX = radius + 8;
+      context.lineWidth = 4; context.lineJoin = 'round'; context.strokeStyle = '#211238'; context.strokeText(label, labelX, 0);
+      context.fillStyle = '#ffe0ed'; context.fillText(label, labelX, 0);
     }
     context.restore();
   }
 
-  private nodeRadius(node: GraphNode, root = this.positions.get(node.id)?.depth === 0): number {
-    return Math.min(22, 7 + Math.sqrt(Math.max(1, this.degrees.get(node.id) ?? 0)) * 2.5 + (root ? 4 : 0));
+  private nodeRadius(node: GraphNode): number {
+    return Math.min(5.5, 1.8 + Math.sqrt(Math.max(1, this.degrees.get(node.id) ?? 0)) * .9);
   }
 
   private ellipsize(context: CanvasRenderingContext2D, text: string, maxWidth: number): string {
@@ -221,7 +216,12 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.canvas.nativeElement.setPointerCapture(event.pointerId); this.pointerStart = { x: event.clientX, y: event.clientY, offsetX: this.offsetX, offsetY: this.offsetY }; this.moved = false;
   };
   private readonly onPointerMove = (event: PointerEvent): void => {
-    if (!this.pointerStart) return; const dx = event.clientX - this.pointerStart.x; const dy = event.clientY - this.pointerStart.y;
+    if (!this.pointerStart) {
+      const hovered = this.hitNode(this.worldPoint(event))?.id;
+      if (hovered !== this.hoveredNodeId) { this.hoveredNodeId = hovered; this.canvas.nativeElement.style.cursor = hovered ? 'pointer' : 'grab'; this.requestDraw(); }
+      return;
+    }
+    const dx = event.clientX - this.pointerStart.x; const dy = event.clientY - this.pointerStart.y;
     if (Math.hypot(dx, dy) > 3) this.moved = true; this.offsetX = this.pointerStart.offsetX + dx; this.offsetY = this.pointerStart.offsetY + dy; this.requestDraw();
   };
   private readonly onPointerUp = (event: PointerEvent): void => {
