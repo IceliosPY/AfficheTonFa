@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateLayout } from '@affichetonfa/board-core';
+import { calculateLayout, calculateMindMapLayout } from '@affichetonfa/board-core';
 import type { GraphEdge, GraphNode } from '@affichetonfa/shared-types';
 
 const source = { id: 's', title: 'Source', publisher: 'Test', publishedAt: '2026-01-01' };
@@ -36,5 +36,21 @@ describe('calculateLayout', () => {
     expect(new Set(coordinates).size).toBe(400);
     expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(100);
     expect(Math.max(...ys) - Math.min(...ys)).toBeLessThan(80);
+  });
+});
+
+describe('calculateMindMapLayout', () => {
+  it('centre le nœud le plus connecté et répartit ses branches sans superposition', () => {
+    const connectedEdges: GraphEdge[] = [
+      { id: 'a-b', source: 'alpha', target: 'beta', type: 'documentary', label: 'Lien', description: 'Lien', documentaryStatus: 'established', lastVerifiedAt: '2026-01-01', sources: [source] },
+      { id: 'a-f', source: 'alpha', target: 'fixed', type: 'documentary', label: 'Lien', description: 'Lien', documentaryStatus: 'established', lastVerifiedAt: '2026-01-01', sources: [source] },
+    ];
+    const layout = calculateMindMapLayout(nodes, connectedEdges);
+    const coordinates = [...layout.values()].map(({ x, y }) => `${x}:${y}`);
+
+    expect(layout.get('alpha')?.depth).toBe(0);
+    expect(layout.get('beta')?.depth).toBe(1);
+    expect(new Set(coordinates).size).toBe(nodes.length);
+    expect([...layout]).toEqual([...calculateMindMapLayout(nodes, connectedEdges)]);
   });
 });

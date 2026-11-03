@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { StaticJsonDataProvider } from '@affichetonfa/board-core';
 import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph, NodeCategory } from '@affichetonfa/shared-types';
 import { BoardCanvasComponent } from './board-canvas.component';
+import { MindMapComponent } from './mind-map.component';
 
 const categoryLabels: Record<NodeCategory, string> = {
   organization: 'Organisations', person: 'Personnes', case: 'Affaires', event: 'Événements', document: 'Documents',
@@ -11,15 +13,19 @@ const categoryLabels: Record<NodeCategory, string> = {
 @Component({
   selector: 'atf-main',
   standalone: true,
-  imports: [CommonModule, FormsModule, BoardCanvasComponent],
+  imports: [CommonModule, FormsModule, BoardCanvasComponent, MindMapComponent],
   template: `
     <div class="app-shell">
       <header class="topbar">
         <div class="brand-small"><span class="mark">A</span><span>AFFICHE<span>TONFA</span></span></div>
         <div class="context"><span class="eyebrow">DOSSIER ACTIF</span><strong>{{ graph?.title || 'Chargement…' }}</strong></div>
         <div class="top-actions">
-          <button type="button" (click)="documentMode = !documentMode" [attr.aria-pressed]="documentMode">{{ documentMode ? 'Vue 3D' : 'Vue documentaire' }}</button>
-          <button type="button" (click)="board?.resetCamera()" title="Revenir à la vue générale">Vue générale</button>
+          <div class="view-switch" aria-label="Choisir la présentation">
+            <button type="button" (click)="viewMode = 'mind'" [class.active]="viewMode === 'mind'">Carte mentale</button>
+            <button type="button" (click)="viewMode = 'board'" [class.active]="viewMode === 'board'">Tableau 3D</button>
+            <button type="button" (click)="viewMode = 'document'" [class.active]="viewMode === 'document'">Fiches</button>
+          </div>
+          <button type="button" (click)="resetActiveView()" title="Revenir à la vue générale" *ngIf="viewMode !== 'document'">Vue générale</button>
         </div>
       </header>
 
@@ -49,13 +55,15 @@ const categoryLabels: Record<NodeCategory, string> = {
           <span>TABLEAU 01 / {{ graph?.nodes?.length || 0 }} FICHES</span>
           <span class="live pending">● DONNÉES EN COURS DE VÉRIFICATION</span>
         </div>
-        <atf-board-canvas #board *ngIf="!documentMode" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
-        <section class="document-view" *ngIf="documentMode" aria-label="Vue documentaire accessible">
+        <atf-mind-map #mindMap *ngIf="viewMode === 'mind'" [graph]="graph" [filters]="filters" [selectedNodeId]="selectedNode?.id" [selectedEdgeId]="selectedEdge?.id" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-mind-map>
+        <atf-board-canvas #board *ngIf="viewMode === 'board'" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
+        <section class="document-view" *ngIf="viewMode === 'document'" aria-label="Vue documentaire accessible">
           <div class="document-card" *ngFor="let node of filteredNodes" tabindex="0" (click)="selectNode(node)" (keydown.enter)="selectNode(node)">
             <span [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span><h2>{{ node.label }}</h2><p>{{ node.description }}</p><small>{{ node.sources.length }} source(s)</small>
           </div>
         </section>
-        <div class="controls-hint" *ngIf="!documentMode"><kbd>⇧</kbd> + glisser une fiche · molette pour zoomer · flèches au clavier</div>
+        <div class="controls-hint" *ngIf="viewMode === 'mind'">glisser pour se déplacer · molette pour zoomer · cliquer pour ouvrir</div>
+        <div class="controls-hint" *ngIf="viewMode === 'board'"><kbd>⇧</kbd> + glisser une fiche · molette pour zoomer · flèches au clavier</div>
       </main>
 
       <aside class="detail-panel" [class.open]="selectedNode || selectedEdge" aria-live="polite">
@@ -86,8 +94,9 @@ const categoryLabels: Record<NodeCategory, string> = {
   `,
   styleUrl: './app.component.scss',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   @ViewChild('board') board?: BoardCanvasComponent;
+  @ViewChild('mindMap') mindMap?: MindMapComponent;
   readonly categories: NodeCategory[] = ['organization', 'person', 'case', 'event', 'document'];
   readonly categoryLabels = categoryLabels;
   graph?: InvestigationGraph;
@@ -96,7 +105,11 @@ export class AppComponent {
   query = '';
   activeCategories = new Set<NodeCategory>();
   filters: BoardFilters = {};
-  documentMode = false;
+  viewMode: 'mind' | 'board' | 'document' = 'mind';
+
+  constructor(private readonly changeDetector: ChangeDetectorRef) {}
+
+  ngOnInit(): void { void this.loadGraph(); }
 
   get searchResults(): GraphNode[] {
     const value = this.query.trim().toLocaleLowerCase('fr');
@@ -112,7 +125,8 @@ export class AppComponent {
   selectNode(node: GraphNode | null): void { this.selectedNode = node; this.selectedEdge = null; }
   selectEdge(edge: GraphEdge | null): void { this.selectedEdge = edge; this.selectedNode = null; }
   closeDetails(): void { this.selectedNode = null; this.selectedEdge = null; this.board?.selectNode(''); this.board?.selectEdge(''); }
-  focus(node: GraphNode): void { this.selectedNode = node; this.selectedEdge = null; this.board?.focusNode(node.id); }
+  focus(node: GraphNode): void { this.selectedNode = node; this.selectedEdge = null; this.board?.focusNode(node.id); this.mindMap?.focusNode(node.id); }
+  resetActiveView(): void { this.viewMode === 'mind' ? this.mindMap?.resetView() : this.board?.resetCamera(); }
   toggleCategory(category: NodeCategory): void {
     this.activeCategories.has(category) ? this.activeCategories.delete(category) : this.activeCategories.add(category);
     this.activeCategories = new Set(this.activeCategories);
@@ -128,6 +142,10 @@ export class AppComponent {
   }
   documentaryStatusLabel(status: GraphEdge['documentaryStatus']): string {
     return { established: 'Établi par les sources', alleged: 'Mention à vérifier', disputed: 'Contesté', archived: 'Archivé' }[status];
+  }
+  private async loadGraph(): Promise<void> {
+    this.graph = await new StaticJsonDataProvider('data/v1/graphs').loadGraph('demonstration');
+    this.changeDetector.detectChanges();
   }
   private searchableText(node: GraphNode): string { return `${node.label} ${node.summary} ${node.description}`.toLocaleLowerCase('fr'); }
 }
