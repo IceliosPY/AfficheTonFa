@@ -73,7 +73,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.controls = new OrbitControls(this.camera, this.canvas.nativeElement);
     this.controls.enableDamping = true; this.controls.dampingFactor = .065; this.controls.enableRotate = true;
     this.controls.minPolarAngle = 0; this.controls.maxPolarAngle = Math.PI;
-    this.raycaster.params.Points = { threshold: .28 }; this.raycaster.params.Line = { threshold: .12 };
+    this.raycaster.params.Points = { threshold: .38 }; this.raycaster.params.Line = { threshold: .12 };
     this.canvas.nativeElement.addEventListener('pointermove', this.onPointerMove);
     this.canvas.nativeElement.addEventListener('pointerleave', this.onPointerLeave);
     this.canvas.nativeElement.addEventListener('click', this.onClick);
@@ -126,7 +126,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     const pointPositions = this.nodeIds.flatMap((id) => this.nodePositions.get(id)?.toArray() ?? [0, 0, 0]);
     const pointColors = this.nodeIds.flatMap((id) => new Color(id === this.selectedNodeId ? '#ffd2e6' : '#ff3d8d').toArray());
     const pointGeometry = new BufferGeometry(); pointGeometry.setAttribute('position', new Float32BufferAttribute(pointPositions, 3)); pointGeometry.setAttribute('color', new Float32BufferAttribute(pointColors, 3));
-    const pointMaterial = new PointsMaterial({ size: 6, sizeAttenuation: false, map: this.pointTexture, alphaTest: .08, transparent: true, vertexColors: true, blending: AdditiveBlending, depthWrite: false });
+    const pointMaterial = new PointsMaterial({ size: 10, sizeAttenuation: false, map: this.pointTexture, alphaTest: .08, transparent: true, vertexColors: true, blending: AdditiveBlending, depthWrite: false });
     this.pointCloud = new Points(pointGeometry, pointMaterial); this.scene.add(this.pointCloud);
 
     const visibleEdges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target) && this.edgeVisible(edge));
