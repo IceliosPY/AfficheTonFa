@@ -55,7 +55,10 @@ export class BoardCanvasComponent implements AfterViewInit, OnChanges, OnDestroy
     this.abortController?.abort(); this.abortController = new AbortController(); this.loading = true; this.error = '';
     try {
       const graph = await new StaticJsonDataProvider('data/v1/graphs').loadGraph(this.graphId, this.abortController.signal);
-      this.board?.loadGraph(graph); this.board?.setFilters(this.filters); this.graphLoaded.emit(graph);
+      this.board?.loadGraph(graph); this.board?.setFilters(this.filters);
+      const onlyNode = graph.nodes.length === 1 ? graph.nodes[0] : undefined;
+      if (onlyNode) this.board?.focusNode(onlyNode.id);
+      this.graphLoaded.emit(graph);
     } catch (error) {
       if ((error as Error).name === 'AbortError') return;
       const normalized = error instanceof Error ? error : new Error(String(error)); this.error = normalized.message; this.boardError.emit(normalized);

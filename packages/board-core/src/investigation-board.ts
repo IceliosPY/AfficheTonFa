@@ -1,5 +1,5 @@
 import {
-  AmbientLight, BoxGeometry, BufferGeometry, Color, CubicBezierCurve3, CylinderGeometry, DirectionalLight,
+  AmbientLight, BufferGeometry, Color, CubicBezierCurve3, CylinderGeometry, DirectionalLight,
   Group, MathUtils, Mesh, MeshStandardMaterial, PerspectiveCamera, Plane, PlaneGeometry, Raycaster,
   Scene, SphereGeometry, TubeGeometry, Vector2, Vector3, WebGLRenderer,
 } from 'three';
@@ -42,10 +42,10 @@ export class InvestigationBoard {
 
   constructor(private readonly container: HTMLElement, private readonly options: BoardOptions = {}) {
     if (!container) throw new Error('Un conteneur est requis');
-    this.scene.background = new Color(options.theme === 'light' ? '#d7d1c5' : '#101211');
+    this.scene.background = options.theme === 'light' ? new Color('#d7d1c5') : null;
     this.camera = new PerspectiveCamera(38, 1, 0.1, 120);
     this.camera.position.set(options.camera?.x ?? 0, options.camera?.y ?? 0, options.camera?.z ?? 22);
-    this.renderer = new WebGLRenderer({ antialias: options.quality !== 'low', alpha: false, powerPreference: 'high-performance' });
+    this.renderer = new WebGLRenderer({ antialias: options.quality !== 'low', alpha: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, options.quality === 'high' ? 2 : 1.5));
     this.renderer.shadowMap.enabled = options.quality !== 'low';
     this.renderer.domElement.className = 'investigation-board-canvas';
@@ -114,7 +114,7 @@ export class InvestigationBoard {
   }
 
   setFilters(filters: BoardFilters): void { this.filters = { ...filters }; this.applyFilters(); }
-  setTheme(theme: 'dark' | 'light'): void { this.scene.background = new Color(theme === 'light' ? '#d7d1c5' : '#101211'); }
+  setTheme(theme: 'dark' | 'light'): void { this.scene.background = theme === 'light' ? new Color('#d7d1c5') : null; }
 
   getCameraState(): CameraState {
     return { x: this.camera.position.x, y: this.camera.position.y, z: this.camera.position.z, targetX: this.controls.target.x, targetY: this.controls.target.y, targetZ: this.controls.target.z };
@@ -127,10 +127,6 @@ export class InvestigationBoard {
   }
 
   private createEnvironment(): void {
-    const board = new Mesh(new BoxGeometry(20, 13, 0.45), new MeshStandardMaterial({ color: '#3d2a21', roughness: 0.93, metalness: 0 }));
-    board.position.z = -0.22; board.receiveShadow = true; this.scene.add(board);
-    const inner = new Mesh(new PlaneGeometry(19.2, 12.2, 30, 20), new MeshStandardMaterial({ color: '#4e3829', roughness: 1 }));
-    inner.position.z = 0.02; inner.receiveShadow = true; this.scene.add(inner);
     this.scene.add(new AmbientLight('#d9c8ac', 1.8));
     const key = new DirectionalLight('#ffd9a3', 4.2); key.position.set(-6, 9, 13); key.castShadow = true; this.scene.add(key);
     const fill = new DirectionalLight('#7393a7', 1.3); fill.position.set(10, -3, 8); this.scene.add(fill);
