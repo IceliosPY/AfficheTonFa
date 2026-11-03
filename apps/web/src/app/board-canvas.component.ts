@@ -45,6 +45,7 @@ export class BoardCanvasComponent implements AfterViewInit, OnChanges, OnDestroy
   }
   focusNode(id: string): void { this.board?.focusNode(id); }
   selectNode(id: string): void { this.board?.selectNode(id); }
+  selectEdge(id: string): void { this.board?.selectEdge(id); }
   resetCamera(): void { this.board?.resetCamera(); }
   setFilters(filters: BoardFilters): void { this.board?.setFilters(filters); }
   setTheme(theme: 'dark' | 'light'): void { this.board?.setTheme(theme); }

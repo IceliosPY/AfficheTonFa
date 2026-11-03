@@ -111,7 +111,7 @@ export class AppComponent {
   onGraph(graph: InvestigationGraph): void { this.graph = graph; }
   selectNode(node: GraphNode | null): void { this.selectedNode = node; this.selectedEdge = null; }
   selectEdge(edge: GraphEdge | null): void { this.selectedEdge = edge; this.selectedNode = null; }
-  closeDetails(): void { this.selectedNode = null; this.selectedEdge = null; this.board?.selectNode(''); }
+  closeDetails(): void { this.selectedNode = null; this.selectedEdge = null; this.board?.selectNode(''); this.board?.selectEdge(''); }
   focus(node: GraphNode): void { this.selectedNode = node; this.selectedEdge = null; this.board?.focusNode(node.id); }
   toggleCategory(category: NodeCategory): void {
     this.activeCategories.has(category) ? this.activeCategories.delete(category) : this.activeCategories.add(category);

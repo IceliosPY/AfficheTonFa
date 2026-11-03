@@ -1,7 +1,7 @@
 import {
-  AmbientLight, BoxGeometry, BufferGeometry, Color, CubicBezierCurve3, CylinderGeometry, DirectionalLight,
-  Group, MathUtils, Mesh, MeshStandardMaterial, PerspectiveCamera, Plane, PlaneGeometry, Raycaster,
-  Scene, SphereGeometry, TubeGeometry, Vector2, Vector3, WebGLRenderer,
+  AmbientLight, BoxGeometry, Color, CubicBezierCurve3, CylinderGeometry, DirectionalLight,
+  Group, InstancedMesh, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PerspectiveCamera, Plane,
+  PlaneGeometry, Quaternion, Raycaster, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { BoardFilters, BoardOptions, CameraState, GraphEdge, GraphNode, InvestigationGraph } from '@affichetonfa/shared-types';
@@ -18,7 +18,10 @@ export type BoardEventMap = {
 };
 
 type CardMesh = Mesh<PlaneGeometry, MeshStandardMaterial> & { userData: { kind: 'node'; id: string } };
-type EdgeMesh = Mesh<TubeGeometry, MeshStandardMaterial> & { userData: { kind: 'edge'; id: string } };
+type EdgeBatch = InstancedMesh<CylinderGeometry, MeshStandardMaterial> & { userData: { kind: 'edge-batch' } };
+type EdgeHitBatch = InstancedMesh<CylinderGeometry, MeshBasicMaterial> & { userData: { kind: 'edge-batch' } };
+
+const LINK_SEGMENTS = 10;
 
 export class InvestigationBoard {
   private readonly scene = new Scene();
@@ -28,8 +31,12 @@ export class InvestigationBoard {
   private readonly raycaster = new Raycaster();
   private readonly pointer = new Vector2();
   private readonly nodeMeshes = new Map<string, CardMesh>();
-  private readonly edgeMeshes = new Map<string, EdgeMesh>();
+  private edgeBatch?: EdgeBatch;
+  private edgeHitBatch?: EdgeHitBatch;
+  private edgeIdsByInstance: string[] = [];
   private readonly environmentMeshes: Array<Mesh<PlaneGeometry | BoxGeometry, MeshStandardMaterial>> = [];
+  private boardMesh?: Mesh<PlaneGeometry, MeshStandardMaterial>;
+  private frameMeshes: Array<Mesh<BoxGeometry, MeshStandardMaterial>> = [];
   private readonly subscriptions: Array<() => void> = [];
   private readonly resizeObserver: ResizeObserver;
   private graph?: InvestigationGraph;
@@ -40,6 +47,9 @@ export class InvestigationBoard {
   private dragPlane = new Plane(new Vector3(0, 0, 1), -0.28);
   private filters: BoardFilters = {};
   private disposed = false;
+  private defaultCameraDistance = 22;
+  private readonly defaultCameraTarget = new Vector3();
+  private boardBounds = { minX: -6.2, maxX: 6.2, minY: -3.8, maxY: 3.8 };
   private cameraAnimation?: { from: Vector3; to: Vector3; targetFrom: Vector3; targetTo: Vector3; started: number };
 
   constructor(private readonly container: HTMLElement, private readonly options: BoardOptions = {}) {
@@ -57,7 +67,8 @@ export class InvestigationBoard {
     container.append(this.renderer.domElement);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true; this.controls.dampingFactor = 0.075; this.controls.enableRotate = true;
-    this.controls.minDistance = 7; this.controls.maxDistance = 42; this.controls.maxPolarAngle = Math.PI * 0.62;
+    this.controls.minDistance = 7; this.controls.maxDistance = 120;
+    this.controls.minPolarAngle = 0; this.controls.maxPolarAngle = Math.PI;
     this.controls.target.set(options.camera?.targetX ?? 0, options.camera?.targetY ?? 0, options.camera?.targetZ ?? 0);
     this.createEnvironment();
     this.bindEvents();
@@ -67,14 +78,14 @@ export class InvestigationBoard {
 
   loadGraph(graph: InvestigationGraph): void {
     this.clearGraph(); this.graph = graph; this.filters = this.options.initialFilters ?? {};
-    if (graph.visual?.cameraDistance) this.camera.position.z = graph.visual.cameraDistance;
-    const positions = calculateLayout(graph.nodes);
+    const positions = calculateLayout(graph.nodes, graph.edges);
+    this.resizeBoard(positions, graph.visual?.cameraDistance);
     for (const node of graph.nodes) {
       const position = positions.get(node.id); if (!position) continue;
       const card = this.createCard(node); card.position.set(position.x, position.y, position.z); card.rotation.z = position.rotation;
       this.scene.add(card); this.nodeMeshes.set(node.id, card);
     }
-    for (const edge of graph.edges) this.createEdge(edge);
+    this.createEdgeBatch(graph.edges.length);
     this.applyFilters();
     if (this.options.selectedNodeId) this.selectNode(this.options.selectedNodeId);
     this.emit('board-ready', { graph });
@@ -91,9 +102,8 @@ export class InvestigationBoard {
   }
 
   selectEdge(id?: string): void {
-    if (this.selectedEdgeId) this.edgeMeshes.get(this.selectedEdgeId)?.material.emissive.set('#000000');
-    this.selectedEdgeId = id && this.edgeMeshes.has(id) ? id : undefined;
-    if (this.selectedEdgeId) this.edgeMeshes.get(this.selectedEdgeId)?.material.emissive.set('#6b1515');
+    this.selectedEdgeId = id && this.graph?.edges.some((edge) => edge.id === id) ? id : undefined;
+    this.rebuildEdges();
     const edge = this.graph?.edges.find(item => item.id === this.selectedEdgeId) ?? null;
     this.emit('edge-selected', { edge });
   }
@@ -111,8 +121,9 @@ export class InvestigationBoard {
 
   resetCamera(): void {
     this.selectNode(); this.cameraAnimation = {
-      from: this.camera.position.clone(), to: new Vector3(0, 0, 22), targetFrom: this.controls.target.clone(),
-      targetTo: new Vector3(), started: performance.now(),
+      from: this.camera.position.clone(),
+      to: new Vector3(this.defaultCameraTarget.x, this.defaultCameraTarget.y, this.defaultCameraDistance),
+      targetFrom: this.controls.target.clone(), targetTo: this.defaultCameraTarget.clone(), started: performance.now(),
     };
   }
 
@@ -135,25 +146,63 @@ export class InvestigationBoard {
 
   private createEnvironment(): void {
     const board = new Mesh(
-      new PlaneGeometry(12.8, 8.1),
+      new PlaneGeometry(1, 1),
       new MeshStandardMaterial({ map: createBoardTexture(), color: '#ffffff', roughness: 1, metalness: 0 }),
     );
-    board.position.z = -0.52; board.receiveShadow = true;
+    board.position.z = -0.52; board.scale.set(12.8, 8.1, 1); board.receiveShadow = true;
 
     const frameMaterial = (): MeshStandardMaterial => new MeshStandardMaterial({ color: '#24150d', roughness: 0.72, metalness: 0.05 });
-    const frameTop = new Mesh(new BoxGeometry(13.55, 0.38, 0.34), frameMaterial());
-    const frameBottom = new Mesh(new BoxGeometry(13.55, 0.38, 0.34), frameMaterial());
-    const frameLeft = new Mesh(new BoxGeometry(0.38, 8.85, 0.34), frameMaterial());
-    const frameRight = new Mesh(new BoxGeometry(0.38, 8.85, 0.34), frameMaterial());
+    const frameTop = new Mesh(new BoxGeometry(1, 1, 1), frameMaterial());
+    const frameBottom = new Mesh(new BoxGeometry(1, 1, 1), frameMaterial());
+    const frameLeft = new Mesh(new BoxGeometry(1, 1, 1), frameMaterial());
+    const frameRight = new Mesh(new BoxGeometry(1, 1, 1), frameMaterial());
+    frameTop.scale.set(13.55, 0.38, 0.34); frameBottom.scale.set(13.55, 0.38, 0.34);
+    frameLeft.scale.set(0.38, 8.85, 0.34); frameRight.scale.set(0.38, 8.85, 0.34);
     frameTop.position.set(0, 4.25, -0.38); frameBottom.position.set(0, -4.25, -0.38);
     frameLeft.position.set(-6.58, 0, -0.38); frameRight.position.set(6.58, 0, -0.38);
     for (const rail of [frameTop, frameBottom, frameLeft, frameRight]) { rail.castShadow = true; rail.receiveShadow = true; }
-    this.environmentMeshes.push(board, frameTop, frameBottom, frameLeft, frameRight);
+    this.boardMesh = board; this.frameMeshes = [frameTop, frameBottom, frameLeft, frameRight];
+    this.environmentMeshes.push(board, ...this.frameMeshes);
     this.scene.add(...this.environmentMeshes);
 
     this.scene.add(new AmbientLight('#d9c8ac', 1.8));
     const key = new DirectionalLight('#ffd9a3', 4.2); key.position.set(-6, 9, 13); key.castShadow = true; this.scene.add(key);
     const fill = new DirectionalLight('#7393a7', 1.3); fill.position.set(10, -3, 8); this.scene.add(fill);
+  }
+
+  private resizeBoard(positions: Map<string, { x: number; y: number }>, requestedDistance?: number): void {
+    const values = [...positions.values()];
+    const minX = values.length ? Math.min(...values.map((position) => position.x)) : 0;
+    const maxX = values.length ? Math.max(...values.map((position) => position.x)) : 0;
+    const minY = values.length ? Math.min(...values.map((position) => position.y)) : 0;
+    const maxY = values.length ? Math.max(...values.map((position) => position.y)) : 0;
+    const width = Math.max(12.8, maxX - minX + 5.2);
+    const height = Math.max(8.1, maxY - minY + 4.2);
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    this.boardMesh?.position.set(centerX, centerY, -0.52);
+    this.boardMesh?.scale.set(width, height, 1);
+    this.boardMesh?.material.map?.repeat.set(width / 12.8, height / 8.1);
+    const [top, bottom, left, right] = this.frameMeshes;
+    top?.position.set(centerX, centerY + height / 2 + 0.2, -0.38);
+    bottom?.position.set(centerX, centerY - height / 2 - 0.2, -0.38);
+    left?.position.set(centerX - width / 2 - 0.2, centerY, -0.38);
+    right?.position.set(centerX + width / 2 + 0.2, centerY, -0.38);
+    top?.scale.set(width + 0.75, 0.38, 0.34); bottom?.scale.set(width + 0.75, 0.38, 0.34);
+    left?.scale.set(0.38, height + 0.75, 0.34); right?.scale.set(0.38, height + 0.75, 0.34);
+    this.boardBounds = {
+      minX: centerX - width / 2 + 1.7, maxX: centerX + width / 2 - 1.7,
+      minY: centerY - height / 2 + 1.2, maxY: centerY + height / 2 - 1.2,
+    };
+    const halfFov = MathUtils.degToRad(this.camera.fov) / 2;
+    const fitHeight = (height / 2) / Math.tan(halfFov);
+    const fitWidth = (width / 2) / (Math.tan(halfFov) * this.camera.aspect);
+    this.defaultCameraDistance = Math.max(requestedDistance ?? 0, Math.max(fitHeight, fitWidth) * 1.12);
+    this.defaultCameraTarget.set(centerX, centerY, 0);
+    this.camera.position.set(centerX, centerY, this.defaultCameraDistance);
+    this.controls.target.copy(this.defaultCameraTarget);
+    this.controls.maxDistance = Math.max(120, this.defaultCameraDistance * 4);
+    this.camera.far = Math.max(120, this.controls.maxDistance * 1.4); this.camera.updateProjectionMatrix();
   }
 
   private createCard(node: GraphNode): CardMesh {
@@ -168,28 +217,79 @@ export class InvestigationBoard {
     return card;
   }
 
-  private createEdge(edge: GraphEdge): void {
-    const source = this.nodeMeshes.get(edge.source); const target = this.nodeMeshes.get(edge.target); if (!source || !target) return;
-    const mesh = this.buildEdgeMesh(edge, source.position, target.position); this.scene.add(mesh); this.edgeMeshes.set(edge.id, mesh);
+  private createEdgeBatch(edgeCount: number): void {
+    if (!edgeCount) return;
+    const batch = new InstancedMesh(
+      new CylinderGeometry(0.035, 0.035, 1, 6),
+      new MeshStandardMaterial({ color: '#ffffff', roughness: 0.72, metalness: 0.04 }),
+      edgeCount * LINK_SEGMENTS,
+    ) as EdgeBatch;
+    batch.userData = { kind: 'edge-batch' }; batch.castShadow = true; batch.frustumCulled = false;
+    const hitBatch = new InstancedMesh(
+      new CylinderGeometry(0.12, 0.12, 1, 5),
+      new MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }),
+      edgeCount * LINK_SEGMENTS,
+    ) as EdgeHitBatch;
+    hitBatch.userData = { kind: 'edge-batch' }; hitBatch.frustumCulled = false;
+    this.edgeBatch = batch; this.edgeHitBatch = hitBatch; this.scene.add(batch, hitBatch);
   }
 
-  private buildEdgeMesh(edge: GraphEdge, source: Vector3, target: Vector3): EdgeMesh {
-    const start = source.clone().setZ(0.16); const end = target.clone().setZ(0.16);
-    const slack = Math.min(1.1, start.distanceTo(end) * 0.11);
-    const curve = new CubicBezierCurve3(start, start.clone().add(new Vector3(0, -slack, 0.5)), end.clone().add(new Vector3(0, -slack, 0.5)), end);
-    const geometry = new TubeGeometry(curve, 22, 0.035, 6, false);
-    const material = new MeshStandardMaterial({ color: edge.color ?? '#9f2824', roughness: 0.72, metalness: 0.05 });
-    const mesh = new Mesh(geometry, material) as EdgeMesh; mesh.userData = { kind: 'edge', id: edge.id }; mesh.castShadow = true; return mesh;
-  }
-
-  private updateEdgesForNode(nodeId: string): void {
-    if (!this.graph) return;
-    for (const edge of this.graph.edges.filter(item => item.source === nodeId || item.target === nodeId)) {
-      const previous = this.edgeMeshes.get(edge.id); const source = this.nodeMeshes.get(edge.source); const target = this.nodeMeshes.get(edge.target);
-      if (!previous || !source || !target) continue;
-      const replacement = this.buildEdgeMesh(edge, source.position, target.position); replacement.visible = previous.visible;
-      this.scene.remove(previous); previous.geometry.dispose(); previous.material.dispose(); this.scene.add(replacement); this.edgeMeshes.set(edge.id, replacement);
+  private rebuildEdges(): void {
+    if (!this.graph || !this.edgeBatch) return;
+    const matrix = new Matrix4();
+    const quaternion = new Quaternion();
+    const up = new Vector3(0, 1, 0);
+    const scale = new Vector3();
+    const midpoint = new Vector3();
+    const direction = new Vector3();
+    this.edgeIdsByInstance = [];
+    let instanceIndex = 0;
+    for (const edge of this.graph.edges) {
+      const source = this.nodeMeshes.get(edge.source); const target = this.nodeMeshes.get(edge.target);
+      if (!source?.visible || !target?.visible || !this.edgeMatchesFilters(edge)) continue;
+      const start = source.position.clone().setZ(0.18); const end = target.position.clone().setZ(0.18);
+      const distance = start.distanceTo(end);
+      const slack = Math.min(1.8, 0.35 + distance * 0.08);
+      const curve = new CubicBezierCurve3(
+        start,
+        start.clone().add(new Vector3(0, -slack, 0.48)),
+        end.clone().add(new Vector3(0, -slack, 0.48)),
+        end,
+      );
+      const points = curve.getPoints(LINK_SEGMENTS);
+      const selected = this.selectedEdgeId === edge.id;
+      const unrelated = this.selectedNodeId && edge.source !== this.selectedNodeId && edge.target !== this.selectedNodeId;
+      const color = new Color(edge.color ?? '#a92e29');
+      if (selected) color.lerp(new Color('#ffb08a'), 0.42);
+      else if (unrelated) color.lerp(new Color('#211814'), 0.68);
+      for (let segment = 0; segment < LINK_SEGMENTS; segment += 1) {
+        const from = points[segment]; const to = points[segment + 1];
+        if (!from || !to) continue;
+        direction.subVectors(to, from);
+        const length = direction.length();
+        if (!length) continue;
+        midpoint.addVectors(from, to).multiplyScalar(0.5);
+        quaternion.setFromUnitVectors(up, direction.normalize());
+        const thickness = selected ? 1.65 : 1;
+        scale.set(thickness, length, thickness);
+        matrix.compose(midpoint, quaternion, scale);
+        this.edgeBatch.setMatrixAt(instanceIndex, matrix);
+        this.edgeHitBatch?.setMatrixAt(instanceIndex, matrix);
+        this.edgeBatch.setColorAt(instanceIndex, color);
+        this.edgeIdsByInstance[instanceIndex] = edge.id;
+        instanceIndex += 1;
+      }
     }
+    this.edgeBatch.count = instanceIndex;
+    this.edgeBatch.instanceMatrix.needsUpdate = true;
+    if (this.edgeHitBatch) { this.edgeHitBatch.count = instanceIndex; this.edgeHitBatch.instanceMatrix.needsUpdate = true; }
+    if (this.edgeBatch.instanceColor) this.edgeBatch.instanceColor.needsUpdate = true;
+  }
+
+  private edgeMatchesFilters(edge: GraphEdge): boolean {
+    const typeMatch = !this.filters.relationTypes?.length || this.filters.relationTypes.includes(edge.type);
+    const statusMatch = !this.filters.documentaryStatuses?.length || this.filters.documentaryStatuses.includes(edge.documentaryStatus);
+    return typeMatch && statusMatch;
   }
 
   private applyFilters(): void {
@@ -200,12 +300,6 @@ export class InvestigationBoard {
       const text = `${node.label} ${node.summary} ${node.description} ${(node.aliases ?? []).join(' ')}`.toLocaleLowerCase('fr');
       const queryMatch = !query || text.includes(query); const mesh = this.nodeMeshes.get(node.id); if (mesh) mesh.visible = categoryMatch && queryMatch;
     }
-    for (const edge of this.graph.edges) {
-      const sourceVisible = this.nodeMeshes.get(edge.source)?.visible ?? false; const targetVisible = this.nodeMeshes.get(edge.target)?.visible ?? false;
-      const typeMatch = !this.filters.relationTypes?.length || this.filters.relationTypes.includes(edge.type);
-      const statusMatch = !this.filters.documentaryStatuses?.length || this.filters.documentaryStatuses.includes(edge.documentaryStatus);
-      const mesh = this.edgeMeshes.get(edge.id); if (mesh) mesh.visible = sourceVisible && targetVisible && typeMatch && statusMatch;
-    }
     this.updateFocusVisibility();
   }
 
@@ -214,9 +308,7 @@ export class InvestigationBoard {
     const connected = new Set<string>();
     if (this.selectedNodeId) for (const edge of this.graph.edges) if (edge.source === this.selectedNodeId || edge.target === this.selectedNodeId) { connected.add(edge.source); connected.add(edge.target); }
     for (const [id, mesh] of this.nodeMeshes) mesh.material.opacity = !this.selectedNodeId || connected.has(id) ? 1 : 0.28;
-    for (const [id, mesh] of this.edgeMeshes) {
-      const edge = this.graph.edges.find(item => item.id === id); mesh.material.opacity = !this.selectedNodeId || edge?.source === this.selectedNodeId || edge?.target === this.selectedNodeId ? 1 : 0.16; mesh.material.transparent = true;
-    }
+    this.rebuildEdges();
   }
 
   private updateCardTexture(id: string, selected: boolean): void {
@@ -228,15 +320,21 @@ export class InvestigationBoard {
     const canvas = this.renderer.domElement;
     const onPointerDown = (event: PointerEvent): void => {
       const hit = this.pick(event);
-      if (hit?.userData['kind'] === 'node') {
-        const node = hit as CardMesh; this.selectNode(node.userData.id);
+      if (hit?.object.userData['kind'] === 'node') {
+        const node = hit.object as CardMesh; this.selectNode(node.userData.id);
         if (this.options.enableDrag !== false && event.shiftKey) { this.dragging = node; this.controls.enabled = false; canvas.setPointerCapture(event.pointerId); }
-      } else if (hit?.userData['kind'] === 'edge') this.selectEdge((hit as EdgeMesh).userData.id);
+      } else if (hit?.object.userData['kind'] === 'edge-batch' && hit.instanceId !== undefined) {
+        this.selectEdge(this.edgeIdsByInstance[hit.instanceId]);
+      }
       else { this.selectNode(); this.selectEdge(); }
     };
     const onPointerMove = (event: PointerEvent): void => {
       if (!this.dragging) return; this.setPointer(event); const point = new Vector3(); this.raycaster.setFromCamera(this.pointer, this.camera);
-      if (this.raycaster.ray.intersectPlane(this.dragPlane, point)) { this.dragging.position.x = MathUtils.clamp(point.x, -8.2, 8.2); this.dragging.position.y = MathUtils.clamp(point.y, -5.1, 5.1); this.updateEdgesForNode(this.dragging.userData.id); }
+      if (this.raycaster.ray.intersectPlane(this.dragPlane, point)) {
+        this.dragging.position.x = MathUtils.clamp(point.x, this.boardBounds.minX, this.boardBounds.maxX);
+        this.dragging.position.y = MathUtils.clamp(point.y, this.boardBounds.minY, this.boardBounds.maxY);
+        this.rebuildEdges();
+      }
     };
     const onPointerUp = (event: PointerEvent): void => { if (this.dragging) canvas.releasePointerCapture(event.pointerId); this.dragging = undefined; this.controls.enabled = true; };
     const onKey = (event: KeyboardEvent): void => {
@@ -244,7 +342,7 @@ export class InvestigationBoard {
       if (event.key === 'ArrowLeft') this.controls.target.x -= step; else if (event.key === 'ArrowRight') this.controls.target.x += step;
       else if (event.key === 'ArrowUp') this.controls.target.y += step; else if (event.key === 'ArrowDown') this.controls.target.y -= step;
       else if (event.key === '+' || event.key === '=') this.camera.position.z = Math.max(7, this.camera.position.z - 1.5);
-      else if (event.key === '-') this.camera.position.z = Math.min(42, this.camera.position.z + 1.5); else if (event.key === 'Home') this.resetCamera(); else return;
+      else if (event.key === '-') this.camera.position.z = Math.min(this.controls.maxDistance, this.camera.position.z + 1.5); else if (event.key === 'Home') this.resetCamera(); else return;
       event.preventDefault();
     };
     const onCamera = (): void => this.emit('camera-changed', this.getCameraState());
@@ -252,9 +350,10 @@ export class InvestigationBoard {
     this.subscriptions.push(() => canvas.removeEventListener('pointerdown', onPointerDown), () => canvas.removeEventListener('pointermove', onPointerMove), () => canvas.removeEventListener('pointerup', onPointerUp), () => canvas.removeEventListener('keydown', onKey), () => this.controls.removeEventListener('end', onCamera));
   }
 
-  private pick(event: PointerEvent): Mesh | undefined {
+  private pick(event: PointerEvent): { object: Mesh; instanceId?: number } | undefined {
     this.setPointer(event); this.raycaster.setFromCamera(this.pointer, this.camera);
-    return this.raycaster.intersectObjects([...this.nodeMeshes.values(), ...this.edgeMeshes.values()], false).find(hit => hit.object.visible)?.object as Mesh | undefined;
+    const objects: Mesh[] = [...this.nodeMeshes.values()]; if (this.edgeHitBatch) objects.push(this.edgeHitBatch);
+    return this.raycaster.intersectObjects(objects, false).find((hit) => hit.object.visible) as { object: Mesh; instanceId?: number } | undefined;
   }
   private setPointer(event: PointerEvent): void { const rect = this.renderer.domElement.getBoundingClientRect(); this.pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1); }
   private resize(): void { const width = Math.max(1, this.container.clientWidth); const height = Math.max(1, this.container.clientHeight); this.camera.aspect = width / height; this.camera.updateProjectionMatrix(); this.renderer.setSize(width, height, false); }
@@ -268,8 +367,14 @@ export class InvestigationBoard {
     this.controls.update(); this.renderer.render(this.scene, this.camera);
   };
   private clearGraph(): void {
-    for (const mesh of [...this.nodeMeshes.values(), ...this.edgeMeshes.values()]) { this.scene.remove(mesh); mesh.geometry.dispose(); mesh.material.map?.dispose(); mesh.material.dispose(); }
-    this.nodeMeshes.clear(); this.edgeMeshes.clear(); this.graph = undefined;
+    for (const mesh of this.nodeMeshes.values()) { this.scene.remove(mesh); mesh.geometry.dispose(); mesh.material.map?.dispose(); mesh.material.dispose(); }
+    if (this.edgeBatch) {
+      this.scene.remove(this.edgeBatch); this.edgeBatch.geometry.dispose(); this.edgeBatch.material.dispose(); this.edgeBatch = undefined;
+    }
+    if (this.edgeHitBatch) {
+      this.scene.remove(this.edgeHitBatch); this.edgeHitBatch.geometry.dispose(); this.edgeHitBatch.material.dispose(); this.edgeHitBatch = undefined;
+    }
+    this.nodeMeshes.clear(); this.edgeIdsByInstance = []; this.selectedNodeId = undefined; this.selectedEdgeId = undefined; this.graph = undefined;
   }
   private emit<K extends keyof BoardEventMap>(name: K, detail: BoardEventMap[K]): void { this.container.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true })); }
 }

@@ -1,4 +1,4 @@
-import { CanvasTexture, SRGBColorSpace } from 'three';
+import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
 
 export function createBoardTexture(baseColor = '#5a3f2b'): CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -52,7 +52,7 @@ export function createBoardTexture(baseColor = '#5a3f2b'): CanvasTexture {
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   const texture = new CanvasTexture(canvas);
-  texture.colorSpace = SRGBColorSpace;
+  texture.colorSpace = SRGBColorSpace; texture.wrapS = RepeatWrapping; texture.wrapT = RepeatWrapping;
   texture.needsUpdate = true;
   return texture;
 }
