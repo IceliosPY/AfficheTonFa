@@ -1,0 +1,45 @@
+{
+  "name": "affichetonfa",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cartographie documentaire interactive et réutilisable en 3D",
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "start": "ng serve web --host 0.0.0.0",
+    "build": "npm run build:web && npm run build:web-component && npm run copy:standalone",
+    "build:web": "ng build web --configuration production --base-href /AfficheTonFa/",
+    "build:web-component": "./node_modules/esbuild/bin/esbuild packages/board-web-component/src/index.ts --bundle --minify --sourcemap --format=iife --target=es2022 --outfile=dist/web-component/investigation-board.js",
+    "copy:standalone": "node tools/copy-standalone.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.packages.json --noEmit",
+    "validate:data": "node tools/validate-data.mjs",
+    "check": "npm run typecheck && npm run validate:data && npm test && npm run build"
+  },
+  "engines": { "node": ">=22.0.0", "npm": ">=10.0.0" },
+  "dependencies": {
+    "@angular/animations": "22.2.4",
+    "@angular/common": "22.2.4",
+    "@angular/compiler": "22.2.4",
+    "@angular/core": "22.2.4",
+    "@angular/forms": "22.2.4",
+    "@angular/platform-browser": "22.2.4",
+    "@angular/router": "22.2.4",
+    "rxjs": "7.8.2",
+    "three": "0.187.0",
+    "zone.js": "0.16.3"
+  },
+  "devDependencies": {
+    "@angular/build": "22.2.5",
+    "@angular/cli": "22.2.5",
+    "@angular/compiler-cli": "22.2.4",
+    "@types/node": "24.10.0",
+    "@types/three": "0.187.0",
+    "esbuild": "0.28.2",
+    "jsdom": "27.1.0",
+    "sass": "1.93.3",
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

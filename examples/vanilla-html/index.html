@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="fr">
+  <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Investigation Board — exemple autonome</title>
+    <style>html,body{margin:0;background:#101211;color:#eee;font-family:system-ui}header{padding:12px 18px;display:flex;justify-content:space-between;align-items:center}header span{color:#a9433d;font-weight:700}button{background:#222;color:#eee;border:1px solid #555;padding:7px 10px;cursor:pointer}investigation-board{height:calc(100vh - 58px)}</style>
+  </head>
+  <body>
+    <header><strong><span>A</span> Exemple HTML sans Angular</strong><button id="reset">Vue générale</button></header>
+    <investigation-board id="board" data-url="../../data/v1/graphs/demonstration.json" theme="dark" width="100%"></investigation-board>
+    <script src="../../embed/investigation-board.js"></script>
+    <script>
+      const board = document.querySelector('#board');
+      document.querySelector('#reset').addEventListener('click', () => board.resetCamera());
+      board.addEventListener('node-selected', event => console.info('Nœud sélectionné', event.detail.node));
+      board.addEventListener('board-error', event => console.error(event.detail.error));
+    </script>
+  </body>
+</html>

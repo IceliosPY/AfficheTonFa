@@ -1,0 +1,24 @@
+import { describe, expect, it } from 'vitest';
+import { validateGraph } from '@affichetonfa/shared-types';
+
+const source = { id: 's1', title: 'Source fictive', publisher: 'Éditeur fictif', publishedAt: '2026-01-01' };
+const validGraph = {
+  schemaVersion: '1.0', id: 'g', title: 'Graphe', description: 'Description', notice: 'Données fictives', updatedAt: '2026-01-01',
+  nodes: [
+    { id: 'a', label: 'A', category: 'organization', summary: 'Résumé A', description: 'Description A', sources: [source] },
+    { id: 'b', label: 'B', category: 'document', summary: 'Résumé B', description: 'Description B', sources: [source] },
+  ],
+  edges: [{ id: 'e', source: 'a', target: 'b', type: 'documentary', label: 'Lien', description: 'Lien sourcé', documentaryStatus: 'established', lastVerifiedAt: '2026-01-01', sources: [source] }],
+};
+
+describe('validateGraph', () => {
+  it('accepte un graphe documentaire cohérent', () => { expect(validateGraph(validGraph)).toMatchObject({ success: true, issues: [] }); });
+  it('refuse une relation vers un nœud inconnu', () => {
+    const invalid = structuredClone(validGraph); invalid.edges[0]!.target = 'absent';
+    const result = validateGraph(invalid); expect(result.success).toBe(false); expect(result.issues.some(issue => issue.path.endsWith('.target'))).toBe(true);
+  });
+  it('refuse les contenus sans source', () => {
+    const invalid = structuredClone(validGraph); invalid.nodes[0]!.sources = [];
+    expect(validateGraph(invalid).issues).toContainEqual({ path: '$.nodes[0].sources', message: 'Au moins une source est requise' });
+  });
+});
