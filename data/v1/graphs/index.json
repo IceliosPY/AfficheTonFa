@@ -3,8 +3,8 @@
   "graphs": [
     {
       "id": "demonstration",
-      "title": "Les archives de Valmont",
-      "description": "Réseau documentaire fictif destiné à démontrer le moteur sans désigner de personnes réelles.",
+      "title": "Tableau principal",
+      "description": "Tableau documentaire vide, prêt à être enrichi fiche par fiche.",
       "dataUrl": "data/v1/graphs/demonstration.json"
     }
   ]
