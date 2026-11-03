@@ -35,13 +35,21 @@ const categoryLabels: Record<NodeCategory, string> = { organization: 'Organisati
           <button *ngFor="let node of searchResults" type="button" (click)="focus(node)"><small>{{ categoryLabels[node.category] }}</small><strong>{{ node.label }}</strong></button>
           <p *ngIf="searchResults.length === 0">Aucun résultat.</p>
         </div>
-        <div class="notice"><span>DONNÉES DU MVP</span><p>Univers entièrement fictif. Les relations affichées servent uniquement à valider l’outil.</p></div>
+        <div class="notice"><span>TABLEAU EN CONSTRUCTION</span><p>Les fiches documentaires seront ajoutées et vérifiées une par une.</p></div>
       </aside>
 
       <main class="workspace">
         <div class="board-meta"><span>TABLEAU 01 / {{ graph?.nodes?.length || 0 }} FICHES</span><span class="live">● DONNÉES VALIDÉES</span></div>
         <atf-board-canvas #board *ngIf="!documentMode" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
+        <div class="empty-board-state" *ngIf="!documentMode && graph && graph.nodes.length === 0">
+          <span>TABLEAU VIDE</span>
+          <strong>Prêt pour la première fiche</strong>
+          <p>Les cartes et leurs liens seront ajoutés progressivement.</p>
+        </div>
         <section class="document-view" *ngIf="documentMode" aria-label="Vue documentaire accessible">
+          <div class="document-empty" *ngIf="filteredNodes.length === 0">
+            <span>0 FICHE</span><h2>Le dossier est vide</h2><p>La première fiche documentaire sera ajoutée prochainement.</p>
+          </div>
           <div class="document-card" *ngFor="let node of filteredNodes" tabindex="0" (click)="selectNode(node)" (keydown.enter)="selectNode(node)">
             <span [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span><h2>{{ node.label }}</h2><p>{{ node.description }}</p><small>{{ node.sources.length }} source(s)</small>
           </div>

@@ -13,6 +13,10 @@ const validGraph = {
 
 describe('validateGraph', () => {
   it('accepte un graphe documentaire cohérent', () => { expect(validateGraph(validGraph)).toMatchObject({ success: true, issues: [] }); });
+  it('accepte un tableau vide prêt à être enrichi', () => {
+    const empty = { ...validGraph, nodes: [], edges: [] };
+    expect(validateGraph(empty)).toMatchObject({ success: true, issues: [] });
+  });
   it('refuse une relation vers un nœud inconnu', () => {
     const invalid = structuredClone(validGraph); invalid.edges[0]!.target = 'absent';
     const result = validateGraph(invalid); expect(result.success).toBe(false); expect(result.issues.some(issue => issue.path.endsWith('.target'))).toBe(true);
