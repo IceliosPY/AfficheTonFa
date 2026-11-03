@@ -4,7 +4,7 @@
     {
       "id": "demonstration",
       "title": "Tableau principal",
-      "description": "Tableau documentaire vide, prêt à être enrichi fiche par fiche.",
+      "description": "Tableau documentaire enrichi progressivement, fiche par fiche.",
       "dataUrl": "data/v1/graphs/demonstration.json"
     }
   ]

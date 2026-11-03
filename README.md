@@ -2,7 +2,7 @@
 
 AfficheTonFa est une plateforme statique de cartographie documentaire interactive. Son tableau Three.js met en scène des fiches sourcées et leurs relations, tandis qu'une vue documentaire reste accessible sans WebGL.
 
-> Le tableau initial est volontairement vide. Les fiches seront ajoutées une par une, avec leurs sources et relations vérifiées. Le projet fournit un outil documentaire ; il ne déduit aucune culpabilité par association.
+> Les fiches sont ajoutées une par une, avec leurs sources et relations vérifiées. Le projet fournit un outil documentaire ; il ne déduit aucune culpabilité par association.
 
 ## Démarrage
 

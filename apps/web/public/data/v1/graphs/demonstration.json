@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "id": "demonstration",
   "title": "Tableau principal",
-  "description": "Tableau documentaire prêt à être enrichi carte par carte.",
+  "description": "Tableau documentaire enrichi progressivement, fiche par fiche.",
   "notice": "Les fiches et leurs relations seront ajoutées progressivement après vérification.",
   "updatedAt": "2026-11-03",
   "visual": {
@@ -11,6 +11,44 @@
     "accentColor": "#a92e29",
     "cameraDistance": 22
   },
-  "nodes": [],
+  "nodes": [
+    {
+      "id": "person-papacito",
+      "label": "Papacito",
+      "category": "person",
+      "summary": "Vidéaste et auteur français actif sous pseudonyme ; fiche initiale sans relation.",
+      "description": "Papacito est le pseudonyme public d’un vidéaste et auteur français. Des médias nationaux, dont Le Monde et franceinfo, le présentent comme une figure de la vidéosphère d’extrême droite. Cette qualification est attribuée aux sources citées ; elle ne constitue ni une relation avec une organisation, ni une implication dans des faits violents.",
+      "status": "Personnalité publique — fiche documentaire initiale",
+      "tags": [
+        "vidéaste",
+        "auteur",
+        "extrême droite — qualification médiatique"
+      ],
+      "position": {
+        "x": 0,
+        "y": 0,
+        "rotation": -0.025
+      },
+      "sources": [
+        {
+          "id": "src-lemonde-papacito-2021",
+          "title": "Le youtubeur d’extrême droite Papacito visé par une enquête après une vidéo de simulation de meurtre d’un électeur de gauche",
+          "publisher": "Le Monde",
+          "publishedAt": "2021-06-09",
+          "url": "https://www.lemonde.fr/politique/article/2021/06/09/le-youtubeur-d-extreme-droite-papacito-vise-par-une-enquete-apres-une-video-de-simulation-de-meurtre-d-un-electeur-de-gauche_6083458_823448.html",
+          "accessedAt": "2026-11-03",
+          "note": "Source secondaire ; la qualification politique est attribuée au média."
+        },
+        {
+          "id": "src-franceinfo-papacito-2021",
+          "title": "Une enquête ouverte après une vidéo du youtubeur d’extrême droite Papacito simulant le meurtre d’un électeur de gauche",
+          "publisher": "franceinfo",
+          "publishedAt": "2021-06-09",
+          "accessedAt": "2026-11-03",
+          "note": "Source secondaire identifiable par son titre, son éditeur et sa date."
+        }
+      ]
+    }
+  ],
   "edges": []
 }
