@@ -40,7 +40,7 @@ const categoryLabels: Record<NodeCategory, string> = { organization: 'Organisati
 
       <main class="workspace">
         <div class="board-meta"><span>TABLEAU 01 / {{ graph?.nodes?.length || 0 }} FICHES</span><span class="live">● DONNÉES VALIDÉES</span></div>
-        <atf-board-canvas #board *ngIf="!documentMode" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
+        <atf-board-canvas #board *ngIf="!documentMode" [filters]="filters" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
         <div class="empty-board-state" *ngIf="!documentMode && graph && graph.nodes.length === 0">
           <span>TABLEAU VIDE</span>
           <strong>Prêt pour la première fiche</strong>

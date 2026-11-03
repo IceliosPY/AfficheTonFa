@@ -78,8 +78,10 @@ export class InvestigationBoard {
   }
 
   selectNode(id?: string): void {
+    const nextId = id && this.nodeMeshes.has(id) ? id : undefined;
+    if (this.selectedNodeId === nextId) return;
     if (this.selectedNodeId) this.updateCardTexture(this.selectedNodeId, false);
-    this.selectedNodeId = id && this.nodeMeshes.has(id) ? id : undefined;
+    this.selectedNodeId = nextId;
     if (this.selectedNodeId) this.updateCardTexture(this.selectedNodeId, true);
     const node = this.graph?.nodes.find(item => item.id === this.selectedNodeId) ?? null;
     this.updateFocusVisibility(); this.emit('node-selected', { node });
