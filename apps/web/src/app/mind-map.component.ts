@@ -1,7 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { calculateMindMapLayout, type MindMapPosition } from '@affichetonfa/board-core';
+import { calculateMindMapLayout } from '@affichetonfa/board-core';
 import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph } from '@affichetonfa/shared-types';
+import {
+  AdditiveBlending, Box3, BufferGeometry, CanvasTexture, Color, Float32BufferAttribute, FogExp2,
+  LineBasicMaterial, LineSegments, PerspectiveCamera, Points, PointsMaterial, Raycaster, Scene,
+  Sphere, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
+} from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 @Component({
   selector: 'atf-mind-map',
@@ -9,11 +15,12 @@ import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph } from '@af
   imports: [CommonModule],
   template: `
     <div #host class="mind-host">
-      <canvas #canvas aria-label="Carte mentale interactive des relations"></canvas>
+      <canvas #canvas aria-label="Graphe 3D interactif des relations"></canvas>
+      <div #label class="node-label" aria-hidden="true"></div>
       <div class="loading" *ngIf="!graph">Organisation du réseau…</div>
-      <div class="map-tools" aria-label="Contrôles de la carte mentale">
-        <button type="button" (click)="zoomBy(1.2)" aria-label="Zoomer">+</button>
-        <button type="button" (click)="zoomBy(1 / 1.2)" aria-label="Dézoomer">−</button>
+      <div class="map-tools" aria-label="Contrôles du graphe 3D">
+        <button type="button" (click)="zoomBy(1.22)" aria-label="Zoomer">+</button>
+        <button type="button" (click)="zoomBy(1 / 1.22)" aria-label="Dézoomer">−</button>
         <button type="button" (click)="resetView()">Centrer</button>
       </div>
     </div>
@@ -22,15 +29,17 @@ import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph } from '@af
     :host,.mind-host{display:block;width:100%;height:100%;min-height:300px;position:relative;overflow:hidden;background:#211238}
     canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
     canvas:active{cursor:grabbing}
-    .loading{position:absolute;left:50%;top:50%;translate:-50% -50%;padding:.75rem 1rem;background:#121412e8;border:1px solid #ffffff26;color:#eee7d9;font-size:12px}
+    .node-label{position:absolute;z-index:3;display:none;pointer-events:none;translate:10px -50%;padding:4px 7px;background:#1b102ee8;border:1px solid #ff559653;color:#ffe1ed;font:600 11px ui-sans-serif,system-ui,sans-serif;white-space:nowrap}
+    .loading{position:absolute;left:50%;top:50%;translate:-50% -50%;padding:.75rem 1rem;background:#1b102ee8;border:1px solid #ff4b9138;color:#f5dae5;font-size:12px}
     .map-tools{position:absolute;right:16px;bottom:16px;display:flex;background:#1b102ed9;border:1px solid #ff4b912e}
     .map-tools button{min-width:34px;height:32px;border:0;border-right:1px solid #ff4b9124;background:transparent;color:#c99bb4;font:600 10px ui-monospace,monospace;cursor:pointer}
-    .map-tools button:last-child{border-right:0;padding:0 11px}.map-tools button:hover{color:#fff;background:#ffffff0a}
+    .map-tools button:last-child{border-right:0;padding:0 11px}.map-tools button:hover{color:#fff;background:#ff4b9114}
   `],
 })
 export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('host', { static: true }) host!: ElementRef<HTMLElement>;
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('label', { static: true }) label!: ElementRef<HTMLElement>;
   @Input() graph?: InvestigationGraph;
   @Input() filters: BoardFilters = {};
   @Input() selectedNodeId?: string;
@@ -38,198 +47,165 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Output() readonly nodeSelected = new EventEmitter<GraphNode | null>();
   @Output() readonly edgeSelected = new EventEmitter<GraphEdge | null>();
 
-  private context?: CanvasRenderingContext2D;
-  private positions = new Map<string, MindMapPosition>();
-  private degrees = new Map<string, number>();
+  private readonly scene = new Scene();
+  private readonly camera = new PerspectiveCamera(48, 1, .05, 2000);
+  private readonly raycaster = new Raycaster();
+  private readonly pointer = new Vector2();
+  private renderer?: WebGLRenderer;
+  private controls?: OrbitControls;
+  private pointCloud?: Points<BufferGeometry, PointsMaterial>;
+  private edgeLines?: LineSegments<BufferGeometry, LineBasicMaterial>;
   private resizeObserver?: ResizeObserver;
-  private frame = 0;
-  private scale = 1;
-  private offsetX = 0;
-  private offsetY = 0;
-  private pointerStart?: { x: number; y: number; offsetX: number; offsetY: number };
-  private hoveredNodeId?: string;
-  private moved = false;
+  private animationFrame = 0;
+  private initialized = false;
+  private nodeIds: string[] = [];
+  private edgeIds: string[] = [];
+  private nodePositions = new Map<string, Vector3>();
+  private defaultCamera = new Vector3(7, 5, 12);
+  private defaultTarget = new Vector3();
+  private readonly pointTexture = this.createPointTexture();
 
   ngAfterViewInit(): void {
-    this.context = this.canvas.nativeElement.getContext('2d') ?? undefined;
-    this.resizeObserver = new ResizeObserver(() => { this.resize(); this.resetView(); });
-    this.resizeObserver.observe(this.host.nativeElement);
-    const canvas = this.canvas.nativeElement;
-    canvas.addEventListener('pointerdown', this.onPointerDown);
-    canvas.addEventListener('pointermove', this.onPointerMove);
-    canvas.addEventListener('pointerup', this.onPointerUp);
-    canvas.addEventListener('pointercancel', this.onPointerUp);
-    canvas.addEventListener('wheel', this.onWheel, { passive: false });
-    this.rebuild();
+    this.scene.background = new Color('#211238');
+    this.renderer = new WebGLRenderer({ canvas: this.canvas.nativeElement, antialias: true, powerPreference: 'high-performance' });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); this.renderer.outputColorSpace = SRGBColorSpace;
+    this.camera.position.copy(this.defaultCamera);
+    this.controls = new OrbitControls(this.camera, this.canvas.nativeElement);
+    this.controls.enableDamping = true; this.controls.dampingFactor = .065; this.controls.enableRotate = true;
+    this.controls.minPolarAngle = 0; this.controls.maxPolarAngle = Math.PI;
+    this.raycaster.params.Points = { threshold: .28 }; this.raycaster.params.Line = { threshold: .12 };
+    this.canvas.nativeElement.addEventListener('pointermove', this.onPointerMove);
+    this.canvas.nativeElement.addEventListener('pointerleave', this.onPointerLeave);
+    this.canvas.nativeElement.addEventListener('click', this.onClick);
+    this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(this.host.nativeElement);
+    this.initialized = true; this.rebuildGraph(); this.resize(); this.animate();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['graph']) this.rebuild();
-    else this.requestDraw();
+    if (this.initialized) this.rebuildGraph(Boolean(changes['graph'] || changes['filters']));
   }
 
   ngOnDestroy(): void {
-    cancelAnimationFrame(this.frame); this.resizeObserver?.disconnect();
-    const canvas = this.canvas.nativeElement;
-    canvas.removeEventListener('pointerdown', this.onPointerDown);
-    canvas.removeEventListener('pointermove', this.onPointerMove);
-    canvas.removeEventListener('pointerup', this.onPointerUp);
-    canvas.removeEventListener('pointercancel', this.onPointerUp);
-    canvas.removeEventListener('wheel', this.onWheel);
+    this.initialized = false; cancelAnimationFrame(this.animationFrame); this.resizeObserver?.disconnect();
+    this.canvas.nativeElement.removeEventListener('pointermove', this.onPointerMove);
+    this.canvas.nativeElement.removeEventListener('pointerleave', this.onPointerLeave);
+    this.canvas.nativeElement.removeEventListener('click', this.onClick);
+    this.controls?.dispose(); this.clearGraph(); this.renderer?.dispose(); this.pointTexture.dispose();
   }
 
   resetView(): void {
-    const values = [...this.positions.values()];
-    const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
-    if (!values.length || !width || !height) return;
-    const minX = Math.min(...values.map(({ x }) => x)) - 130; const maxX = Math.max(...values.map(({ x }) => x)) + 130;
-    const minY = Math.min(...values.map(({ y }) => y)) - 70; const maxY = Math.max(...values.map(({ y }) => y)) + 70;
-    this.scale = Math.min(1.25, Math.max(.08, Math.min((width - 90) / (maxX - minX), (height - 100) / (maxY - minY))));
-    this.offsetX = width / 2 - (minX + maxX) / 2 * this.scale;
-    this.offsetY = height / 2 - (minY + maxY) / 2 * this.scale;
-    this.requestDraw();
+    this.camera.position.copy(this.defaultCamera); this.controls?.target.copy(this.defaultTarget); this.controls?.update();
+    this.nodeSelected.emit(null); this.edgeSelected.emit(null);
   }
 
   focusNode(id: string): void {
-    const position = this.positions.get(id); if (!position) return;
-    this.scale = Math.max(this.scale, .9);
-    this.offsetX = this.host.nativeElement.clientWidth / 2 - position.x * this.scale;
-    this.offsetY = this.host.nativeElement.clientHeight / 2 - position.y * this.scale;
-    this.requestDraw();
+    const position = this.nodePositions.get(id); if (!position || !this.controls) return;
+    const direction = this.camera.position.clone().sub(this.controls.target).normalize();
+    this.controls.target.copy(position); this.camera.position.copy(position).addScaledVector(direction, Math.max(5, this.defaultCamera.distanceTo(this.defaultTarget) * .35)); this.controls.update();
   }
 
-  zoomBy(factor: number, screenX = this.host.nativeElement.clientWidth / 2, screenY = this.host.nativeElement.clientHeight / 2): void {
-    const next = Math.min(3, Math.max(.08, this.scale * factor));
-    const worldX = (screenX - this.offsetX) / this.scale; const worldY = (screenY - this.offsetY) / this.scale;
-    this.scale = next; this.offsetX = screenX - worldX * next; this.offsetY = screenY - worldY * next; this.requestDraw();
+  zoomBy(factor: number): void {
+    if (!this.controls) return;
+    const offset = this.camera.position.clone().sub(this.controls.target).multiplyScalar(1 / factor);
+    const distance = Math.min(this.controls.maxDistance, Math.max(this.controls.minDistance, offset.length()));
+    this.camera.position.copy(this.controls.target).add(offset.normalize().multiplyScalar(distance)); this.controls.update();
   }
 
-  private rebuild(): void {
-    this.positions = this.graph ? calculateMindMapLayout(this.graph.nodes, this.graph.edges) : new Map();
-    this.degrees = new Map(this.graph?.nodes.map((node) => [node.id, 0]) ?? []);
-    for (const edge of this.graph?.edges ?? []) {
-      this.degrees.set(edge.source, (this.degrees.get(edge.source) ?? 0) + 1);
-      this.degrees.set(edge.target, (this.degrees.get(edge.target) ?? 0) + 1);
+  private rebuildGraph(fitView = true): void {
+    this.clearGraph(); const graph = this.graph; if (!graph || !this.renderer || !this.controls) return;
+    const layout = calculateMindMapLayout(graph.nodes, graph.edges);
+    const visibleNodes = graph.nodes.filter((node) => this.nodeVisible(node));
+    const visibleIds = new Set(visibleNodes.map((node) => node.id));
+    const depth = Math.max(3.5, Math.sqrt(visibleNodes.length) * .48);
+    this.nodePositions = new Map(visibleNodes.map((node) => {
+      const position = layout.get(node.id); const z = (this.hash(node.id) / 0xffffffff - .5) * depth * 2;
+      return [node.id, new Vector3((position?.x ?? 0) * .02, -(position?.y ?? 0) * .02, z)];
+    }));
+
+    this.nodeIds = visibleNodes.map((node) => node.id);
+    const pointPositions = this.nodeIds.flatMap((id) => this.nodePositions.get(id)?.toArray() ?? [0, 0, 0]);
+    const pointColors = this.nodeIds.flatMap((id) => new Color(id === this.selectedNodeId ? '#ffd2e6' : '#ff3d8d').toArray());
+    const pointGeometry = new BufferGeometry(); pointGeometry.setAttribute('position', new Float32BufferAttribute(pointPositions, 3)); pointGeometry.setAttribute('color', new Float32BufferAttribute(pointColors, 3));
+    const pointMaterial = new PointsMaterial({ size: 6, sizeAttenuation: false, map: this.pointTexture, alphaTest: .08, transparent: true, vertexColors: true, blending: AdditiveBlending, depthWrite: false });
+    this.pointCloud = new Points(pointGeometry, pointMaterial); this.scene.add(this.pointCloud);
+
+    const visibleEdges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target) && this.edgeVisible(edge));
+    this.edgeIds = visibleEdges.map((edge) => edge.id);
+    const linePositions: number[] = []; const lineColors: number[] = [];
+    for (const edge of visibleEdges) {
+      const source = this.nodePositions.get(edge.source); const target = this.nodePositions.get(edge.target); if (!source || !target) continue;
+      linePositions.push(...source.toArray(), ...target.toArray());
+      const color = new Color(edge.id === this.selectedEdgeId ? '#ff8aba' : '#f02f7d'); lineColors.push(...color.toArray(), ...color.toArray());
     }
-    queueMicrotask(() => { this.resize(); this.resetView(); });
+    const lineGeometry = new BufferGeometry(); lineGeometry.setAttribute('position', new Float32BufferAttribute(linePositions, 3)); lineGeometry.setAttribute('color', new Float32BufferAttribute(lineColors, 3));
+    this.edgeLines = new LineSegments(lineGeometry, new LineBasicMaterial({ vertexColors: true, transparent: true, opacity: this.selectedEdgeId ? .86 : .6, depthWrite: false }));
+    this.scene.add(this.edgeLines); if (fitView) this.fitCamera();
+  }
+
+  private fitCamera(): void {
+    const values = [...this.nodePositions.values()]; if (!values.length || !this.controls) return;
+    const box = new Box3().setFromPoints(values); const centre = box.getCenter(new Vector3()); const sphere = box.getBoundingSphere(new Sphere()); const radius = Math.max(2.8, sphere.radius);
+    const distance = radius / Math.tan(this.camera.fov * Math.PI / 360) * 1.35;
+    this.defaultTarget.copy(centre); this.defaultCamera.copy(centre).add(new Vector3(.68, .42, 1).normalize().multiplyScalar(distance));
+    this.camera.near = Math.max(.02, distance / 500); this.camera.far = distance * 20; this.camera.updateProjectionMatrix();
+    this.controls.minDistance = Math.max(.5, radius * .22); this.controls.maxDistance = distance * 8;
+    this.scene.fog = new FogExp2('#211238', .055 / radius); this.camera.position.copy(this.defaultCamera); this.controls.target.copy(centre); this.controls.update();
+  }
+
+  private clearGraph(): void {
+    if (this.pointCloud) { this.scene.remove(this.pointCloud); this.pointCloud.geometry.dispose(); this.pointCloud.material.dispose(); this.pointCloud = undefined; }
+    if (this.edgeLines) { this.scene.remove(this.edgeLines); this.edgeLines.geometry.dispose(); this.edgeLines.material.dispose(); this.edgeLines = undefined; }
+    this.nodeIds = []; this.edgeIds = []; this.nodePositions.clear(); this.hideLabel();
   }
 
   private resize(): void {
-    const canvas = this.canvas.nativeElement; const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.max(1, Math.round(width * ratio)); canvas.height = Math.max(1, Math.round(height * ratio));
-    canvas.style.width = `${width}px`; canvas.style.height = `${height}px`; this.requestDraw();
+    if (!this.renderer) return; const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
+    this.renderer.setSize(width, height, false); this.camera.aspect = Math.max(1, width) / Math.max(1, height); this.camera.updateProjectionMatrix();
   }
 
-  private requestDraw(): void {
-    cancelAnimationFrame(this.frame); this.frame = requestAnimationFrame(() => this.draw());
+  private animate = (): void => {
+    if (!this.initialized || !this.renderer) return; this.animationFrame = requestAnimationFrame(this.animate); this.controls?.update(); this.renderer.render(this.scene, this.camera);
+  };
+
+  private pick(event: PointerEvent, object: Points | LineSegments): ReturnType<Raycaster['intersectObject']>[number] | undefined {
+    const bounds = this.canvas.nativeElement.getBoundingClientRect(); this.pointer.set((event.clientX - bounds.left) / bounds.width * 2 - 1, -((event.clientY - bounds.top) / bounds.height) * 2 + 1);
+    this.raycaster.setFromCamera(this.pointer, this.camera); return this.raycaster.intersectObject(object, false)[0];
   }
 
-  private draw(): void {
-    const context = this.context; const graph = this.graph; if (!context) return;
-    const canvas = this.canvas.nativeElement; const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    context.setTransform(ratio, 0, 0, ratio, 0, 0); context.clearRect(0, 0, canvas.width / ratio, canvas.height / ratio);
-    this.drawBackdrop(context, canvas.width / ratio, canvas.height / ratio);
-    if (!graph) return;
-    context.save(); context.translate(this.offsetX, this.offsetY); context.scale(this.scale, this.scale);
-    const visibleNodes = new Set(graph.nodes.filter((node) => this.nodeVisible(node)).map((node) => node.id));
-    for (const edge of graph.edges) if (visibleNodes.has(edge.source) && visibleNodes.has(edge.target) && this.edgeVisible(edge)) this.drawEdge(context, edge);
-    for (const node of graph.nodes) if (visibleNodes.has(node.id)) this.drawNode(context, node);
-    context.restore();
-  }
-
-  private drawBackdrop(context: CanvasRenderingContext2D, width: number, height: number): void {
-    const gradient = context.createRadialGradient(width * .52, height * .46, 0, width * .52, height * .46, Math.max(width, height) * .72);
-    gradient.addColorStop(0, '#291743'); gradient.addColorStop(1, '#1b102f');
-    context.fillStyle = gradient; context.fillRect(0, 0, width, height);
-  }
-
-  private drawEdge(context: CanvasRenderingContext2D, edge: GraphEdge): void {
-    const source = this.positions.get(edge.source); const target = this.positions.get(edge.target); if (!source || !target) return;
-    const selected = edge.id === this.selectedEdgeId; const related = this.selectedNodeId === edge.source || this.selectedNodeId === edge.target;
-    context.beginPath(); context.moveTo(source.x, source.y); context.lineTo(target.x, target.y);
-    context.strokeStyle = selected ? '#ff77b2' : related ? '#ff4c98' : edge.documentaryStatus === 'alleged' ? '#f12f7ca8' : '#ee347fbf';
-    context.lineWidth = (selected ? 2 : related ? 1.35 : .8) / Math.max(this.scale, .5); context.stroke();
-  }
-
-  private drawNode(context: CanvasRenderingContext2D, node: GraphNode): void {
-    const position = this.positions.get(node.id); if (!position) return;
-    const selected = node.id === this.selectedNodeId; const hovered = node.id === this.hoveredNodeId; const radius = this.nodeRadius(node);
-    const showLabel = selected || hovered;
-    context.save(); context.translate(position.x, position.y);
-    context.shadowColor = '#ff3d8d'; context.shadowBlur = selected || hovered ? 14 : 4;
-    context.beginPath(); context.arc(0, 0, radius, 0, Math.PI * 2); context.fillStyle = selected ? '#ff92c1' : '#ff3d8d'; context.fill();
-    context.shadowColor = 'transparent';
-    if (selected) { context.beginPath(); context.arc(0, 0, radius + 4, 0, Math.PI * 2); context.lineWidth = 1.3; context.strokeStyle = '#ff92c1'; context.stroke(); }
-    if (showLabel) {
-      context.font = '600 11px ui-sans-serif,system-ui,sans-serif'; context.textBaseline = 'middle';
-      const label = this.ellipsize(context, node.label, 150); const labelX = radius + 8;
-      context.lineWidth = 4; context.lineJoin = 'round'; context.strokeStyle = '#211238'; context.strokeText(label, labelX, 0);
-      context.fillStyle = '#ffe0ed'; context.fillText(label, labelX, 0);
+  private readonly onPointerMove = (event: PointerEvent): void => {
+    if (!this.pointCloud || event.buttons) { this.hideLabel(); return; }
+    const hit = this.pick(event, this.pointCloud); const id = hit?.index === undefined ? undefined : this.nodeIds[hit.index]; const node = this.graph?.nodes.find((item) => item.id === id);
+    if (!node) { this.hideLabel(); this.canvas.nativeElement.style.cursor = 'grab'; return; }
+    const bounds = this.host.nativeElement.getBoundingClientRect(); const label = this.label.nativeElement;
+    label.textContent = node.label; label.style.left = `${event.clientX - bounds.left}px`; label.style.top = `${event.clientY - bounds.top}px`; label.style.display = 'block'; this.canvas.nativeElement.style.cursor = 'pointer';
+  };
+  private readonly onPointerLeave = (): void => { this.hideLabel(); };
+  private readonly onClick = (event: PointerEvent): void => {
+    if (this.pointCloud) {
+      const pointHit = this.pick(event, this.pointCloud); const id = pointHit?.index === undefined ? undefined : this.nodeIds[pointHit.index];
+      const node = this.graph?.nodes.find((item) => item.id === id); if (node) { this.nodeSelected.emit(node); return; }
     }
-    context.restore();
-  }
+    if (this.edgeLines) {
+      const lineHit = this.pick(event, this.edgeLines); const segment = lineHit?.index; const edgeId = segment === undefined ? undefined : this.edgeIds[Math.floor(segment / 2)];
+      const edge = this.graph?.edges.find((item) => item.id === edgeId);
+      if (edge) { this.edgeSelected.emit(edge); return; }
+    }
+    this.nodeSelected.emit(null); this.edgeSelected.emit(null);
+  };
 
-  private nodeRadius(node: GraphNode): number {
-    return Math.min(5.5, 1.8 + Math.sqrt(Math.max(1, this.degrees.get(node.id) ?? 0)) * .9);
-  }
-
-  private ellipsize(context: CanvasRenderingContext2D, text: string, maxWidth: number): string {
-    if (context.measureText(text).width <= maxWidth) return text;
-    let value = text; while (value.length > 1 && context.measureText(`${value}…`).width > maxWidth) value = value.slice(0, -1); return `${value}…`;
-  }
-
+  private hideLabel(): void { if (this.label) this.label.nativeElement.style.display = 'none'; }
   private nodeVisible(node: GraphNode): boolean {
     const categories = this.filters.categories ?? []; const query = this.filters.query?.trim().toLocaleLowerCase('fr') ?? '';
     return (!categories.length || categories.includes(node.category)) && (!query || `${node.label} ${node.summary} ${node.description}`.toLocaleLowerCase('fr').includes(query));
   }
-
   private edgeVisible(edge: GraphEdge): boolean {
     const types = this.filters.relationTypes ?? []; const statuses = this.filters.documentaryStatuses ?? [];
     return (!types.length || types.includes(edge.type)) && (!statuses.length || statuses.includes(edge.documentaryStatus));
   }
-
-  private worldPoint(event: PointerEvent): { x: number; y: number } {
-    const bounds = this.canvas.nativeElement.getBoundingClientRect();
-    return { x: (event.clientX - bounds.left - this.offsetX) / this.scale, y: (event.clientY - bounds.top - this.offsetY) / this.scale };
+  private hash(value: string): number { let result = 2166136261; for (const character of value) { result ^= character.charCodeAt(0); result = Math.imul(result, 16777619); } return result >>> 0; }
+  private createPointTexture(): CanvasTexture {
+    const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64; const context = canvas.getContext('2d');
+    if (context) { const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32); gradient.addColorStop(0, '#fff'); gradient.addColorStop(.22, '#fff'); gradient.addColorStop(.48, '#ff4a94cc'); gradient.addColorStop(1, '#ff3d8d00'); context.fillStyle = gradient; context.fillRect(0, 0, 64, 64); }
+    return new CanvasTexture(canvas);
   }
-
-  private hitNode(point: { x: number; y: number }): GraphNode | undefined {
-    return [...(this.graph?.nodes ?? [])].reverse().find((node) => {
-      if (!this.nodeVisible(node)) return false; const position = this.positions.get(node.id); if (!position) return false;
-      const hitRadius = Math.max(this.nodeRadius(node), 12 / this.scale);
-      return Math.hypot(point.x - position.x, point.y - position.y) <= hitRadius;
-    });
-  }
-
-  private hitEdge(point: { x: number; y: number }): GraphEdge | undefined {
-    const threshold = 10 / this.scale;
-    return (this.graph?.edges ?? []).find((edge) => {
-      if (!this.edgeVisible(edge)) return false; const source = this.positions.get(edge.source); const target = this.positions.get(edge.target); if (!source || !target) return false;
-      const dx = target.x - source.x; const dy = target.y - source.y; const lengthSquared = dx * dx + dy * dy || 1;
-      const t = Math.max(0, Math.min(1, ((point.x - source.x) * dx + (point.y - source.y) * dy) / lengthSquared));
-      return Math.hypot(point.x - (source.x + t * dx), point.y - (source.y + t * dy)) <= threshold;
-    });
-  }
-
-  private readonly onPointerDown = (event: PointerEvent): void => {
-    this.canvas.nativeElement.setPointerCapture(event.pointerId); this.pointerStart = { x: event.clientX, y: event.clientY, offsetX: this.offsetX, offsetY: this.offsetY }; this.moved = false;
-  };
-  private readonly onPointerMove = (event: PointerEvent): void => {
-    if (!this.pointerStart) {
-      const hovered = this.hitNode(this.worldPoint(event))?.id;
-      if (hovered !== this.hoveredNodeId) { this.hoveredNodeId = hovered; this.canvas.nativeElement.style.cursor = hovered ? 'pointer' : 'grab'; this.requestDraw(); }
-      return;
-    }
-    const dx = event.clientX - this.pointerStart.x; const dy = event.clientY - this.pointerStart.y;
-    if (Math.hypot(dx, dy) > 3) this.moved = true; this.offsetX = this.pointerStart.offsetX + dx; this.offsetY = this.pointerStart.offsetY + dy; this.requestDraw();
-  };
-  private readonly onPointerUp = (event: PointerEvent): void => {
-    if (!this.pointerStart) return; this.pointerStart = undefined;
-    if (this.moved) return; const point = this.worldPoint(event); const node = this.hitNode(point);
-    if (node) { this.nodeSelected.emit(node); return; } const edge = this.hitEdge(point); this.edgeSelected.emit(edge ?? null); if (!edge) this.nodeSelected.emit(null);
-  };
-  private readonly onWheel = (event: WheelEvent): void => {
-    event.preventDefault(); const bounds = this.canvas.nativeElement.getBoundingClientRect(); this.zoomBy(Math.exp(-event.deltaY * .001), event.clientX - bounds.left, event.clientY - bounds.top);
-  };
 }
