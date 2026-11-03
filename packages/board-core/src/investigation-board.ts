@@ -1,10 +1,11 @@
 import {
-  AmbientLight, BufferGeometry, Color, CubicBezierCurve3, CylinderGeometry, DirectionalLight,
+  AmbientLight, BoxGeometry, BufferGeometry, Color, CubicBezierCurve3, CylinderGeometry, DirectionalLight,
   Group, MathUtils, Mesh, MeshStandardMaterial, PerspectiveCamera, Plane, PlaneGeometry, Raycaster,
   Scene, SphereGeometry, TubeGeometry, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { BoardFilters, BoardOptions, CameraState, GraphEdge, GraphNode, InvestigationGraph } from '@affichetonfa/shared-types';
+import { createBoardTexture } from './board-texture';
 import { createCardTexture } from './card-texture';
 import { calculateLayout } from './layout';
 
@@ -28,6 +29,7 @@ export class InvestigationBoard {
   private readonly pointer = new Vector2();
   private readonly nodeMeshes = new Map<string, CardMesh>();
   private readonly edgeMeshes = new Map<string, EdgeMesh>();
+  private readonly environmentMeshes: Array<Mesh<PlaneGeometry | BoxGeometry, MeshStandardMaterial>> = [];
   private readonly subscriptions: Array<() => void> = [];
   private readonly resizeObserver: ResizeObserver;
   private graph?: InvestigationGraph;
@@ -123,11 +125,32 @@ export class InvestigationBoard {
 
   destroy(): void {
     if (this.disposed) return; this.disposed = true; cancelAnimationFrame(this.animationFrame); this.resizeObserver.disconnect();
-    for (const unsubscribe of this.subscriptions) unsubscribe(); this.clearGraph(); this.controls.dispose(); this.renderer.dispose();
+    for (const unsubscribe of this.subscriptions) unsubscribe(); this.clearGraph();
+    for (const mesh of this.environmentMeshes) {
+      this.scene.remove(mesh); mesh.geometry.dispose(); mesh.material.map?.dispose(); mesh.material.dispose();
+    }
+    this.controls.dispose(); this.renderer.dispose();
     this.renderer.domElement.remove();
   }
 
   private createEnvironment(): void {
+    const board = new Mesh(
+      new PlaneGeometry(12.8, 8.1),
+      new MeshStandardMaterial({ map: createBoardTexture(), color: '#ffffff', roughness: 1, metalness: 0 }),
+    );
+    board.position.z = -0.52; board.receiveShadow = true;
+
+    const frameMaterial = (): MeshStandardMaterial => new MeshStandardMaterial({ color: '#24150d', roughness: 0.72, metalness: 0.05 });
+    const frameTop = new Mesh(new BoxGeometry(13.55, 0.38, 0.34), frameMaterial());
+    const frameBottom = new Mesh(new BoxGeometry(13.55, 0.38, 0.34), frameMaterial());
+    const frameLeft = new Mesh(new BoxGeometry(0.38, 8.85, 0.34), frameMaterial());
+    const frameRight = new Mesh(new BoxGeometry(0.38, 8.85, 0.34), frameMaterial());
+    frameTop.position.set(0, 4.25, -0.38); frameBottom.position.set(0, -4.25, -0.38);
+    frameLeft.position.set(-6.58, 0, -0.38); frameRight.position.set(6.58, 0, -0.38);
+    for (const rail of [frameTop, frameBottom, frameLeft, frameRight]) { rail.castShadow = true; rail.receiveShadow = true; }
+    this.environmentMeshes.push(board, frameTop, frameBottom, frameLeft, frameRight);
+    this.scene.add(...this.environmentMeshes);
+
     this.scene.add(new AmbientLight('#d9c8ac', 1.8));
     const key = new DirectionalLight('#ffd9a3', 4.2); key.position.set(-6, 9, 13); key.castShadow = true; this.scene.add(key);
     const fill = new DirectionalLight('#7393a7', 1.3); fill.position.set(10, -3, 8); this.scene.add(fill);
