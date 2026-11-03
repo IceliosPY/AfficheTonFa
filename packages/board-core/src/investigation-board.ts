@@ -65,6 +65,7 @@ export class InvestigationBoard {
 
   loadGraph(graph: InvestigationGraph): void {
     this.clearGraph(); this.graph = graph; this.filters = this.options.initialFilters ?? {};
+    if (graph.visual?.cameraDistance) this.camera.position.z = graph.visual.cameraDistance;
     const positions = calculateLayout(graph.nodes);
     for (const node of graph.nodes) {
       const position = positions.get(node.id); if (!position) continue;

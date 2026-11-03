@@ -9,14 +9,14 @@
     "backgroundColor": "#101211",
     "boardColor": "#4e3829",
     "accentColor": "#a92e29",
-    "cameraDistance": 22
+    "cameraDistance": 14
   },
   "nodes": [
     {
       "id": "person-papacito",
       "label": "Papacito",
       "category": "person",
-      "summary": "Vidéaste et auteur français actif sous pseudonyme ; fiche initiale sans relation.",
+      "summary": "Vidéaste et auteur français ; fiche de test reliée à Code Rheno autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
       "description": "Papacito est le pseudonyme public d’un vidéaste et auteur français. Des médias nationaux, dont Le Monde et franceinfo, le présentent comme une figure de la vidéosphère d’extrême droite. Cette qualification est attribuée aux sources citées ; elle ne constitue ni une relation avec une organisation, ni une implication dans des faits violents.",
       "status": "Personnalité publique — fiche documentaire initiale",
       "tags": [
@@ -25,7 +25,7 @@
         "extrême droite — qualification médiatique"
       ],
       "position": {
-        "x": 0,
+        "x": -2.35,
         "y": 0,
         "rotation": -0.025
       },
@@ -48,7 +48,56 @@
           "note": "Source secondaire identifiable par son titre, son éditeur et sa date."
         }
       ]
+    },
+    {
+      "id": "person-code-rheno",
+      "label": "Code Rheno",
+      "category": "person",
+      "summary": "Fiche de test reliée à Papacito autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
+      "description": "Cette fiche est ajoutée pour tester l’affichage d’une relation documentaire avec Papacito. L’identité, l’activité et la référence vidéo restent à documenter avec des sources vérifiables.",
+      "status": "Fiche de test — informations à vérifier",
+      "tags": [
+        "fiche de test",
+        "référence vidéo à vérifier"
+      ],
+      "position": {
+        "x": 2.35,
+        "y": 0,
+        "rotation": 0.02
+      },
+      "sources": [
+        {
+          "id": "src-video-gauchiste-pare-balle",
+          "title": "Le gauchiste est-il pare-balle ?",
+          "publisher": "Référence fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-03",
+          "note": "Titre fourni pour tester la relation ; URL, date, éditeur et contenu à vérifier."
+        }
+      ]
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "id": "rel-papacito-code-rheno-collaboration",
+      "source": "person-papacito",
+      "target": "person-code-rheno",
+      "type": "documentary",
+      "label": "A travaillé avec",
+      "description": "Collaboration mentionnée par l’utilisateur autour de la vidéo « Le gauchiste est-il pare-balle ? ». Référence à confirmer par une source vérifiable.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-03",
+      "sources": [
+        {
+          "id": "src-video-gauchiste-pare-balle",
+          "title": "Le gauchiste est-il pare-balle ?",
+          "publisher": "Référence fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-03",
+          "note": "Titre fourni pour tester la relation ; URL, date, éditeur et contenu à vérifier."
+        }
+      ],
+      "color": "#b83831"
+    }
+  ]
 }
