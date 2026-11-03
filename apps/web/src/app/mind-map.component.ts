@@ -44,6 +44,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private context?: CanvasRenderingContext2D;
   private positions = new Map<string, MindMapPosition>();
+  private degrees = new Map<string, number>();
   private resizeObserver?: ResizeObserver;
   private frame = 0;
   private scale = 1;
@@ -108,6 +109,11 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private rebuild(): void {
     this.positions = this.graph ? calculateMindMapLayout(this.graph.nodes, this.graph.edges) : new Map();
+    this.degrees = new Map(this.graph?.nodes.map((node) => [node.id, 0]) ?? []);
+    for (const edge of this.graph?.edges ?? []) {
+      this.degrees.set(edge.source, (this.degrees.get(edge.source) ?? 0) + 1);
+      this.degrees.set(edge.target, (this.degrees.get(edge.target) ?? 0) + 1);
+    }
     queueMicrotask(() => { this.resize(); this.resetView(); });
   }
 
@@ -153,15 +159,24 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private drawNode(context: CanvasRenderingContext2D, node: GraphNode): void {
     const position = this.positions.get(node.id); if (!position) return;
-    const root = position.depth === 0; const width = root ? 210 : 178; const height = root ? 68 : 56; const selected = node.id === this.selectedNodeId;
-    context.save(); context.translate(position.x, position.y); context.shadowColor = '#0009'; context.shadowBlur = 14; context.shadowOffsetY = 5;
-    context.beginPath(); context.roundRect(-width / 2, -height / 2, width, height, root ? 7 : 4); context.fillStyle = selected ? '#f2eadb' : '#ded7ca'; context.fill();
-    context.shadowColor = 'transparent'; context.lineWidth = selected ? 3 : 1; context.strokeStyle = selected ? '#d04a41' : '#ffffff20'; context.stroke();
-    context.fillStyle = categoryColors[node.category]; context.fillRect(-width / 2, -height / 2, root ? 8 : 5, height);
-    context.fillStyle = '#292622'; context.font = `${root ? 700 : 600} ${root ? 15 : 13}px Georgia,serif`; context.textBaseline = 'middle';
-    context.fillText(this.ellipsize(context, node.label, width - 28), -width / 2 + 18, root ? -8 : 0);
-    if (root) { context.fillStyle = '#766f65'; context.font = '8px ui-monospace,monospace'; context.fillText('NŒUD CENTRAL', -width / 2 + 18, 14); }
+    const root = position.depth === 0; const selected = node.id === this.selectedNodeId; const radius = this.nodeRadius(node, root);
+    const showLabel = selected || root || (this.graph?.nodes.length ?? 0) <= 120 || this.scale >= 1.1;
+    context.save(); context.translate(position.x, position.y);
+    context.shadowColor = categoryColors[node.category]; context.shadowBlur = selected ? 24 : root ? 16 : 9;
+    context.beginPath(); context.arc(0, 0, radius, 0, Math.PI * 2); context.fillStyle = categoryColors[node.category]; context.fill();
+    context.shadowColor = 'transparent'; context.beginPath(); context.arc(0, 0, radius * .43, 0, Math.PI * 2); context.fillStyle = '#f4eee2'; context.globalAlpha = .72; context.fill(); context.globalAlpha = 1;
+    if (selected) { context.beginPath(); context.arc(0, 0, radius + 7, 0, Math.PI * 2); context.lineWidth = 2.5; context.strokeStyle = '#f0e7d7'; context.stroke(); }
+    if (showLabel) {
+      context.font = `${root ? 700 : 600} ${root ? 15 : 12}px ui-sans-serif,system-ui,sans-serif`; context.textBaseline = 'middle';
+      const label = this.ellipsize(context, node.label, root ? 190 : 145); const labelX = radius + 10;
+      context.lineWidth = 4; context.lineJoin = 'round'; context.strokeStyle = '#0d100f'; context.strokeText(label, labelX, 0);
+      context.fillStyle = selected ? '#fff' : '#d9d4ca'; context.fillText(label, labelX, 0);
+    }
     context.restore();
+  }
+
+  private nodeRadius(node: GraphNode, root = this.positions.get(node.id)?.depth === 0): number {
+    return Math.min(22, 7 + Math.sqrt(Math.max(1, this.degrees.get(node.id) ?? 0)) * 2.5 + (root ? 4 : 0));
   }
 
   private ellipsize(context: CanvasRenderingContext2D, text: string, maxWidth: number): string {
@@ -187,8 +202,8 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private hitNode(point: { x: number; y: number }): GraphNode | undefined {
     return [...(this.graph?.nodes ?? [])].reverse().find((node) => {
       if (!this.nodeVisible(node)) return false; const position = this.positions.get(node.id); if (!position) return false;
-      const width = position.depth === 0 ? 210 : 178; const height = position.depth === 0 ? 68 : 56;
-      return Math.abs(point.x - position.x) <= width / 2 && Math.abs(point.y - position.y) <= height / 2;
+      const hitRadius = Math.max(this.nodeRadius(node), 12 / this.scale);
+      return Math.hypot(point.x - position.x, point.y - position.y) <= hitRadius;
     });
   }
 
