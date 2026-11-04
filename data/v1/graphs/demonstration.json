@@ -80,8 +80,8 @@
       "id": "person-julien-rochedy",
       "label": "Julien Rochedy",
       "category": "person",
-      "summary": "Fiche de test reliée à Papacito par la mention de l’ouvrage « Menace sur les gauchistes ».",
-      "description": "Cette fiche et l’attribution de l’ouvrage « Menace sur les gauchistes » sont ajoutées à partir d’une affirmation fournie par l’utilisateur. L’identité, la nature exacte de la contribution et la référence bibliographique restent à confirmer par une source identifiable.",
+      "summary": "Fiche reliée à Papacito par la mention de l’ouvrage « Menace sur les gauchistes » et au Rassemblement national par un ancien rôle dirigeant allégué au Front national de la jeunesse.",
+      "description": "L’attribution de l’ouvrage « Menace sur les gauchistes » et la fonction d’ancien dirigeant du Front national de la jeunesse sont représentées à partir des indications de l’utilisateur. La vidéo fournie est désormais référencée, mais son contenu et ses métadonnées restent à contrôler.",
       "status": "Fiche de test — informations à vérifier",
       "tags": [
         "fiche de test",
@@ -100,6 +100,15 @@
           "publishedAt": "Date à vérifier",
           "accessedAt": "2026-11-04",
           "note": "Titre et attribution fournis pour construire la relation ; édition, date, auteurs et source bibliographique à vérifier."
+        },
+        {
+          "id": "src-video-julien-rochedy-rassemblement-national",
+          "title": "Vidéo YouTube 9md5AXZbUow",
+          "publisher": "YouTube — chaîne et titre à confirmer",
+          "publishedAt": "Date à vérifier",
+          "url": "https://youtu.be/9md5AXZbUow",
+          "accessedAt": "2026-11-04",
+          "note": "Vidéo fournie par l’utilisateur pour documenter cette relation. Son titre, sa chaîne, sa date et son contenu restent à contrôler, l’accès à YouTube étant indisponible depuis l’environnement de travail."
         }
       ]
     },
@@ -134,9 +143,9 @@
       "id": "organization-rassemblement-national",
       "label": "Rassemblement national",
       "category": "organization",
-      "summary": "Organisation ajoutée pour représenter un lien mentionné avec Alain Soral.",
-      "description": "Cette fiche sert à représenter la relation demandée avec Alain Soral. Les éléments décrivant cette relation restent à confirmer par une source identifiable.",
-      "status": "Organisation — relation associée à vérifier",
+      "summary": "Organisation reliée à Alain Soral et Julien Rochedy par des mentions restant à vérifier.",
+      "description": "Cette fiche représente les relations demandées avec Alain Soral et Julien Rochedy. Pour Julien Rochedy, le lien porte sur une fonction dirigeante alléguée au Front national de la jeunesse ; la vidéo fournie est référencée, mais son contenu et ses métadonnées restent à contrôler.",
+      "status": "Organisation — relations associées à vérifier",
       "tags": [
         "organisation",
         "relation à vérifier"
@@ -154,6 +163,15 @@
           "publishedAt": "Date à vérifier",
           "accessedAt": "2026-11-04",
           "note": "Lien demandé pour construire le graphe ; nature, période, contexte et source à vérifier."
+        },
+        {
+          "id": "src-video-julien-rochedy-rassemblement-national",
+          "title": "Vidéo YouTube 9md5AXZbUow",
+          "publisher": "YouTube — chaîne et titre à confirmer",
+          "publishedAt": "Date à vérifier",
+          "url": "https://youtu.be/9md5AXZbUow",
+          "accessedAt": "2026-11-04",
+          "note": "Vidéo fournie par l’utilisateur pour documenter cette relation. Son titre, sa chaîne, sa date et son contenu restent à contrôler, l’accès à YouTube étant indisponible depuis l’environnement de travail."
         }
       ]
     }
@@ -218,6 +236,28 @@
           "publishedAt": "Date à vérifier",
           "accessedAt": "2026-11-04",
           "note": "Lien demandé pour construire le graphe ; nature, période, contexte et source à vérifier."
+        }
+      ],
+      "color": "#f02f7d"
+    },
+    {
+      "id": "rel-julien-rochedy-rassemblement-national",
+      "source": "person-julien-rochedy",
+      "target": "organization-rassemblement-national",
+      "type": "documentary",
+      "label": "A dirigé le Front national de la jeunesse",
+      "description": "Julien Rochedy est présenté comme un ancien dirigeant du Front national de la jeunesse, rattaché ici au Rassemblement national. La vidéo YouTube fournie est une source identifiable, mais son contenu, ses métadonnées, l’intitulé exact de la fonction et sa période restent à contrôler.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-04",
+      "sources": [
+        {
+          "id": "src-video-julien-rochedy-rassemblement-national",
+          "title": "Vidéo YouTube 9md5AXZbUow",
+          "publisher": "YouTube — chaîne et titre à confirmer",
+          "publishedAt": "Date à vérifier",
+          "url": "https://youtu.be/9md5AXZbUow",
+          "accessedAt": "2026-11-04",
+          "note": "Vidéo fournie par l’utilisateur pour documenter cette relation. Son titre, sa chaîne, sa date et son contenu restent à contrôler, l’accès à YouTube étant indisponible depuis l’environnement de travail."
         }
       ],
       "color": "#f02f7d"
