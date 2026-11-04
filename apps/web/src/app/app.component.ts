@@ -25,7 +25,6 @@ const categoryLabels: Record<NodeCategory, string> = {
             <button type="button" (click)="viewMode = 'board'" [class.active]="viewMode === 'board'">Tableau 3D</button>
             <button type="button" (click)="viewMode = 'document'" [class.active]="viewMode === 'document'">Fiches</button>
           </div>
-          <button type="button" (click)="resetActiveView()" title="Revenir à la vue générale" *ngIf="viewMode !== 'document'">Vue générale</button>
           <button type="button" class="settings-button" (click)="settingsOpen = true" [class.active]="settingsOpen" [attr.aria-expanded]="settingsOpen" aria-haspopup="dialog">⚙ Paramètres</button>
         </div>
       </header>
@@ -48,13 +47,13 @@ const categoryLabels: Record<NodeCategory, string> = {
           <button *ngFor="let node of searchResults" type="button" (click)="focus(node)"><small>{{ categoryLabels[node.category] }}</small><strong>{{ node.label }}</strong></button>
           <p *ngIf="searchResults.length === 0">Aucun résultat.</p>
         </div>
-        <div class="notice"><span>TABLEAU EN CONSTRUCTION</span><p>Les fiches documentaires seront ajoutées et vérifiées une par une.</p></div>
+        <div class="notice"><span>CARTE PERSONNELLE</span><p>Les fiches et relations reflètent la ligne éditoriale de cette page.</p></div>
       </aside>
 
       <main class="workspace">
         <div class="board-meta">
           <span>TABLEAU 01 / {{ graph?.nodes?.length || 0 }} FICHES</span>
-          <span class="live pending">● DONNÉES EN COURS DE VÉRIFICATION</span>
+          <span class="live">● CARTE PERSONNELLE EN ÉVOLUTION</span>
         </div>
         <atf-mind-map #mindMap *ngIf="viewMode === 'mind'" [graph]="graph" [filters]="filters" [selectedNodeId]="selectedNode?.id" [selectedEdgeId]="selectedEdge?.id" [labelMode]="mindMapLabelMode" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-mind-map>
         <atf-board-canvas #board *ngIf="viewMode === 'board'" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
@@ -145,7 +144,7 @@ const categoryLabels: Record<NodeCategory, string> = {
           <div class="relation-route"><span>{{ nodeLabel(edge.source) }}</span><i>→</i><span>{{ nodeLabel(edge.target) }}</span></div>
           <dl class="metadata-grid">
             <div><dt>Statut documentaire</dt><dd><span class="status-pill" [class.established]="edge.documentaryStatus === 'established'">{{ documentaryStatusLabel(edge.documentaryStatus) }}</span></dd></div>
-            <div><dt>Dernière vérification</dt><dd>{{ displayDate(edge.lastVerifiedAt) }}</dd></div>
+            <div><dt>Dernière mise à jour</dt><dd>{{ displayDate(edge.lastVerifiedAt) }}</dd></div>
             <div class="wide" *ngIf="edge.period"><dt>Période</dt><dd>{{ edge.period.label || ((edge.period.from || '?') + ' — ' + (edge.period.to || 'présent')) }}</dd></div>
           </dl>
           <section class="detail-section" *ngIf="edge.sources.length">
@@ -220,7 +219,6 @@ export class AppComponent implements OnInit {
   selectEdge(edge: GraphEdge | null): void { this.selectedEdge = edge; this.selectedNode = null; }
   closeDetails(): void { this.selectedNode = null; this.selectedEdge = null; this.board?.selectNode(''); this.board?.selectEdge(''); }
   focus(node: GraphNode): void { this.selectedNode = node; this.selectedEdge = null; this.board?.focusNode(node.id); this.mindMap?.focusNode(node.id); }
-  resetActiveView(): void { this.viewMode === 'mind' ? this.mindMap?.resetView() : this.board?.resetCamera(); }
   setMindMapLabelMode(mode: 'nearby' | 'always'): void {
     this.mindMapLabelMode = mode;
     try { localStorage.setItem('atf.mindMapLabelMode', mode); } catch { /* Le réglage reste actif pour la session. */ }
@@ -248,7 +246,7 @@ export class AppComponent implements OnInit {
     return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
   }
   documentaryStatusLabel(status: GraphEdge['documentaryStatus']): string {
-    return { established: 'Établi par les sources', alleged: 'Mention à vérifier', disputed: 'Contesté', archived: 'Archivé' }[status];
+    return { established: 'Source directe', alleged: 'Déclaration personnelle', disputed: 'Point de vue contesté', archived: 'Archivé' }[status];
   }
   private async loadGraph(): Promise<void> {
     this.graph = await new StaticJsonDataProvider('data/v1/graphs').loadGraph('demonstration');
