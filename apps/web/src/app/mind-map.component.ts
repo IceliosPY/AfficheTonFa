@@ -67,7 +67,6 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private defaultCamera = new Vector3(7, 5, 12);
   private defaultTarget = new Vector3();
   private defaultDistance = 14;
-  private labelFrame = 0;
   private cameraTransition?: { from: Vector3; to: Vector3; targetFrom: Vector3; targetTo: Vector3; startedAt: number };
   private readonly zoomLabelElements = new Map<string, HTMLElement>();
   private readonly pointTexture = this.createPointTexture();
@@ -179,7 +178,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private animate = (): void => {
     if (!this.initialized || !this.renderer) return; this.animationFrame = requestAnimationFrame(this.animate); this.updateCameraTransition(); this.controls?.update(); this.renderer.render(this.scene, this.camera);
-    this.labelFrame = (this.labelFrame + 1) % 4; if (this.labelFrame === 0) this.updateZoomLabels();
+    this.updateZoomLabels();
   };
 
   private updateCameraTransition(): void {
@@ -200,10 +199,11 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       let element = this.zoomLabelElements.get(id);
       if (!element) {
         element = document.createElement('span'); element.textContent = this.graph?.nodes.find((node) => node.id === id)?.label ?? id;
-        Object.assign(element.style, { position: 'absolute', translate: '15px -50%', color: '#ffe1ed', font: '600 12px ui-sans-serif,system-ui,sans-serif', textShadow: '0 1px 5px #160b29, 0 0 9px #160b29', whiteSpace: 'nowrap' });
+        Object.assign(element.style, { position: 'absolute', left: '0', top: '0', color: '#ffe1ed', font: '600 12px ui-sans-serif,system-ui,sans-serif', textShadow: '0 1px 5px #160b29, 0 0 9px #160b29', whiteSpace: 'nowrap', willChange: 'transform' });
         this.zoomLabels.nativeElement.append(element); element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' }); this.zoomLabelElements.set(id, element);
       }
-      element.style.left = `${(position.x + 1) * .5 * width}px`; element.style.top = `${(1 - position.y) * .5 * height}px`;
+      const x = (position.x + 1) * .5 * width; const y = (1 - position.y) * .5 * height;
+      element.style.transform = `translate3d(${x}px,${y}px,0) translate(15px,-50%)`;
     }
     for (const [id, element] of this.zoomLabelElements) if (!visible.has(id)) { element.remove(); this.zoomLabelElements.delete(id); }
   }
