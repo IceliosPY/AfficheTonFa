@@ -17,6 +17,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     <div #host class="mind-host">
       <canvas #canvas aria-label="Graphe 3D interactif des relations"></canvas>
       <div #label class="node-label" aria-hidden="true"></div>
+      <div #zoomLabels class="zoom-labels" aria-hidden="true"></div>
       <div class="loading" *ngIf="!graph">Organisation du réseau…</div>
       <div class="map-tools" aria-label="Contrôles du graphe 3D">
         <button type="button" (click)="zoomBy(1.22)" aria-label="Zoomer">+</button>
@@ -30,6 +31,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
     canvas:active{cursor:grabbing}
     .node-label{position:absolute;z-index:3;display:none;pointer-events:none;translate:10px -50%;padding:4px 7px;background:#1b102ee8;border:1px solid #ff559653;color:#ffe1ed;font:600 11px ui-sans-serif,system-ui,sans-serif;white-space:nowrap}
+    .zoom-labels{position:absolute;z-index:2;inset:0;overflow:hidden;pointer-events:none}
     .loading{position:absolute;left:50%;top:50%;translate:-50% -50%;padding:.75rem 1rem;background:#1b102ee8;border:1px solid #ff4b9138;color:#f5dae5;font-size:12px}
     .map-tools{position:absolute;right:16px;bottom:16px;display:flex;background:#1b102ed9;border:1px solid #ff4b912e}
     .map-tools button{min-width:34px;height:32px;border:0;border-right:1px solid #ff4b9124;background:transparent;color:#c99bb4;font:600 10px ui-monospace,monospace;cursor:pointer}
@@ -40,6 +42,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('host', { static: true }) host!: ElementRef<HTMLElement>;
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('label', { static: true }) label!: ElementRef<HTMLElement>;
+  @ViewChild('zoomLabels', { static: true }) zoomLabels!: ElementRef<HTMLElement>;
   @Input() graph?: InvestigationGraph;
   @Input() filters: BoardFilters = {};
   @Input() selectedNodeId?: string;
@@ -63,6 +66,9 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private nodePositions = new Map<string, Vector3>();
   private defaultCamera = new Vector3(7, 5, 12);
   private defaultTarget = new Vector3();
+  private defaultDistance = 14;
+  private labelFrame = 0;
+  private readonly zoomLabelElements = new Map<string, HTMLElement>();
   private readonly pointTexture = this.createPointTexture();
 
   ngAfterViewInit(): void {
@@ -149,23 +155,45 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.defaultTarget.copy(centre); this.defaultCamera.copy(centre).add(new Vector3(.68, .42, 1).normalize().multiplyScalar(distance));
     this.camera.near = Math.max(.02, distance / 500); this.camera.far = distance * 20; this.camera.updateProjectionMatrix();
     this.controls.minDistance = Math.max(.5, radius * .22); this.controls.maxDistance = distance * 8;
-    this.scene.fog = new FogExp2('#211238', .055 / radius); this.camera.position.copy(this.defaultCamera); this.controls.target.copy(centre); this.controls.update();
+    this.defaultDistance = distance; this.scene.fog = new FogExp2('#211238', .055 / radius); this.camera.position.copy(this.defaultCamera); this.controls.target.copy(centre); this.controls.update();
   }
 
   private clearGraph(): void {
     if (this.pointCloud) { this.scene.remove(this.pointCloud); this.pointCloud.geometry.dispose(); this.pointCloud.material.dispose(); this.pointCloud = undefined; }
     if (this.edgeLines) { this.scene.remove(this.edgeLines); this.edgeLines.geometry.dispose(); this.edgeLines.material.dispose(); this.edgeLines = undefined; }
-    this.nodeIds = []; this.edgeIds = []; this.nodePositions.clear(); this.hideLabel();
+    this.nodeIds = []; this.edgeIds = []; this.nodePositions.clear(); this.hideLabel(); this.clearZoomLabels();
   }
 
   private resize(): void {
     if (!this.renderer) return; const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
-    this.renderer.setSize(width, height, false); this.camera.aspect = Math.max(1, width) / Math.max(1, height); this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height, false); this.camera.aspect = Math.max(1, width) / Math.max(1, height); this.camera.updateProjectionMatrix(); this.updateZoomLabels();
   }
 
   private animate = (): void => {
     if (!this.initialized || !this.renderer) return; this.animationFrame = requestAnimationFrame(this.animate); this.controls?.update(); this.renderer.render(this.scene, this.camera);
+    this.labelFrame = (this.labelFrame + 1) % 4; if (this.labelFrame === 0) this.updateZoomLabels();
   };
+
+  private updateZoomLabels(): void {
+    if (!this.controls || !this.renderer || this.camera.position.distanceTo(this.controls.target) > this.defaultDistance * .62) { this.clearZoomLabels(); return; }
+    const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
+    const projected = [...this.nodePositions].map(([id, position]) => ({ id, position: position.clone().project(this.camera), distance: position.distanceTo(this.camera.position) }))
+      .filter(({ position }) => position.z >= -1 && position.z <= 1 && Math.abs(position.x) <= 1.05 && Math.abs(position.y) <= 1.05)
+      .sort((left, right) => left.distance - right.distance).slice(0, 60);
+    const visible = new Set(projected.map(({ id }) => id));
+    for (const { id, position } of projected) {
+      let element = this.zoomLabelElements.get(id);
+      if (!element) {
+        element = document.createElement('span'); element.textContent = this.graph?.nodes.find((node) => node.id === id)?.label ?? id;
+        Object.assign(element.style, { position: 'absolute', translate: '12px -50%', padding: '3px 6px', background: '#1b102ecf', border: '1px solid #ff559642', color: '#ffe1ed', font: '600 11px ui-sans-serif,system-ui,sans-serif', whiteSpace: 'nowrap' });
+        this.zoomLabels.nativeElement.append(element); this.zoomLabelElements.set(id, element);
+      }
+      element.style.left = `${(position.x + 1) * .5 * width}px`; element.style.top = `${(1 - position.y) * .5 * height}px`;
+    }
+    for (const [id, element] of this.zoomLabelElements) if (!visible.has(id)) { element.remove(); this.zoomLabelElements.delete(id); }
+  }
+
+  private clearZoomLabels(): void { for (const element of this.zoomLabelElements.values()) element.remove(); this.zoomLabelElements.clear(); }
 
   private pick(event: PointerEvent, object: Points | LineSegments): ReturnType<Raycaster['intersectObject']>[number] | undefined {
     const bounds = this.canvas.nativeElement.getBoundingClientRect(); this.pointer.set((event.clientX - bounds.left) / bounds.width * 2 - 1, -((event.clientY - bounds.top) / bounds.height) * 2 + 1);
