@@ -68,6 +68,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private defaultTarget = new Vector3();
   private defaultDistance = 14;
   private labelFrame = 0;
+  private cameraTransition?: { from: Vector3; to: Vector3; targetFrom: Vector3; targetTo: Vector3; startedAt: number };
   private readonly zoomLabelElements = new Map<string, HTMLElement>();
   private readonly pointTexture = this.createPointTexture();
 
@@ -100,18 +101,25 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   resetView(): void {
+    this.cameraTransition = undefined;
     this.camera.position.copy(this.defaultCamera); this.controls?.target.copy(this.defaultTarget); this.controls?.update();
     this.nodeSelected.emit(null); this.edgeSelected.emit(null);
   }
 
   focusNode(id: string): void {
     const position = this.nodePositions.get(id); if (!position || !this.controls) return;
+    const desiredDistance = Math.max(this.controls.minDistance * 1.5, this.defaultDistance * .52);
+    if (this.camera.position.distanceTo(position) <= desiredDistance * 1.05) { this.controls.target.copy(position); this.controls.update(); return; }
     const direction = this.camera.position.clone().sub(this.controls.target).normalize();
-    this.controls.target.copy(position); this.camera.position.copy(position).addScaledVector(direction, Math.max(5, this.defaultCamera.distanceTo(this.defaultTarget) * .35)); this.controls.update();
+    this.cameraTransition = {
+      from: this.camera.position.clone(), to: position.clone().addScaledVector(direction, desiredDistance),
+      targetFrom: this.controls.target.clone(), targetTo: position.clone(), startedAt: performance.now(),
+    };
   }
 
   zoomBy(factor: number): void {
     if (!this.controls) return;
+    this.cameraTransition = undefined;
     const offset = this.camera.position.clone().sub(this.controls.target).multiplyScalar(1 / factor);
     const distance = Math.min(this.controls.maxDistance, Math.max(this.controls.minDistance, offset.length()));
     this.camera.position.copy(this.controls.target).add(offset.normalize().multiplyScalar(distance)); this.controls.update();
@@ -170,9 +178,16 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private animate = (): void => {
-    if (!this.initialized || !this.renderer) return; this.animationFrame = requestAnimationFrame(this.animate); this.controls?.update(); this.renderer.render(this.scene, this.camera);
+    if (!this.initialized || !this.renderer) return; this.animationFrame = requestAnimationFrame(this.animate); this.updateCameraTransition(); this.controls?.update(); this.renderer.render(this.scene, this.camera);
     this.labelFrame = (this.labelFrame + 1) % 4; if (this.labelFrame === 0) this.updateZoomLabels();
   };
+
+  private updateCameraTransition(): void {
+    const transition = this.cameraTransition; if (!transition || !this.controls) return;
+    const progress = Math.min(1, (performance.now() - transition.startedAt) / 520); const eased = 1 - (1 - progress) ** 3;
+    this.camera.position.lerpVectors(transition.from, transition.to, eased); this.controls.target.lerpVectors(transition.targetFrom, transition.targetTo, eased);
+    if (progress === 1) this.cameraTransition = undefined;
+  }
 
   private updateZoomLabels(): void {
     if (!this.controls || !this.renderer || this.camera.position.distanceTo(this.controls.target) > this.defaultDistance * .62) { this.clearZoomLabels(); return; }
@@ -201,7 +216,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private readonly onPointerMove = (event: PointerEvent): void => {
-    if (!this.pointCloud || event.buttons) { this.hideLabel(); return; }
+    if (!this.pointCloud || event.buttons) { if (event.buttons) this.cameraTransition = undefined; this.hideLabel(); return; }
     const hit = this.pick(event, this.pointCloud); const id = hit?.index === undefined ? undefined : this.nodeIds[hit.index]; const node = this.graph?.nodes.find((item) => item.id === id);
     if (!node) { this.hideLabel(); this.canvas.nativeElement.style.cursor = 'grab'; return; }
     const bounds = this.host.nativeElement.getBoundingClientRect(); const label = this.label.nativeElement;
@@ -211,7 +226,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly onClick = (event: PointerEvent): void => {
     if (this.pointCloud) {
       const pointHit = this.pick(event, this.pointCloud); const id = pointHit?.index === undefined ? undefined : this.nodeIds[pointHit.index];
-      const node = this.graph?.nodes.find((item) => item.id === id); if (node) { this.nodeSelected.emit(node); return; }
+      const node = this.graph?.nodes.find((item) => item.id === id); if (node) { this.focusNode(node.id); this.nodeSelected.emit(node); return; }
     }
     if (this.edgeLines) {
       const lineHit = this.pick(event, this.edgeLines); const segment = lineHit?.index; const edgeId = segment === undefined ? undefined : this.edgeIds[Math.floor(segment / 2)];
