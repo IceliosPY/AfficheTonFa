@@ -142,9 +142,7 @@ const categoryLabels: Record<NodeCategory, string> = {
             <span class="detail-type relation-tag">RELATION · {{ edge.type }}</span><h2>{{ edge.label }}</h2><p class="lead">{{ edge.description }}</p>
           </header>
           <div class="relation-route"><span>{{ nodeLabel(edge.source) }}</span><i>→</i><span>{{ nodeLabel(edge.target) }}</span></div>
-          <dl class="metadata-grid">
-            <div><dt>Statut documentaire</dt><dd><span class="status-pill" [class.established]="edge.documentaryStatus === 'established'">{{ documentaryStatusLabel(edge.documentaryStatus) }}</span></dd></div>
-            <div><dt>Dernière mise à jour</dt><dd>{{ displayDate(edge.lastVerifiedAt) }}</dd></div>
+          <dl class="metadata-grid" *ngIf="edge.period">
             <div class="wide" *ngIf="edge.period"><dt>Période</dt><dd>{{ edge.period.label || ((edge.period.from || '?') + ' — ' + (edge.period.to || 'présent')) }}</dd></div>
           </dl>
           <section class="detail-section" *ngIf="edge.sources.length">
@@ -244,9 +242,6 @@ export class AppComponent implements OnInit {
   displayDate(value: string): string {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
-  }
-  documentaryStatusLabel(status: GraphEdge['documentaryStatus']): string {
-    return { established: 'Source directe', alleged: 'Déclaration personnelle', disputed: 'Point de vue contesté', archived: 'Archivé' }[status];
   }
   private async loadGraph(): Promise<void> {
     this.graph = await new StaticJsonDataProvider('data/v1/graphs').loadGraph('demonstration');
