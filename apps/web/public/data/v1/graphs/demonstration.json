@@ -80,9 +80,9 @@
       "id": "person-julien-rochedy",
       "label": "Julien Rochedy",
       "category": "person",
-      "summary": "Fiche reliée à Papacito par la mention de l’ouvrage « Menace sur les gauchistes » et au Rassemblement national par un ancien rôle dirigeant allégué au Front national de la jeunesse.",
-      "description": "L’attribution de l’ouvrage « Menace sur les gauchistes » et la fonction d’ancien dirigeant du Front national de la jeunesse sont représentées à partir des indications de l’utilisateur. La vidéo fournie est désormais référencée, mais son contenu et ses métadonnées restent à contrôler.",
-      "status": "Fiche de test — informations à vérifier",
+      "summary": "Ancien directeur national du Front national de la jeunesse selon son témoignage vidéo, également relié à Papacito par la mention de l’ouvrage « Menace sur les gauchistes ».",
+      "description": "Dans son témoignage vidéo, Julien Rochedy dit avoir pris sa carte au Front national en septembre 2006, avoir été directeur national du FNJ en septembre 2012, avoir quitté le FNJ à l’été 2014 puis le parti vers novembre 2014. Cette chronologie repose sur son propre récit et reste à recouper avec une source indépendante. L’attribution de « Menace sur les gauchistes » demeure elle aussi à confirmer bibliographiquement.",
+      "status": "Parcours documenté par un témoignage direct — dates à recouper",
       "tags": [
         "fiche de test",
         "attribution d’ouvrage à vérifier"
@@ -103,14 +103,19 @@
         },
         {
           "id": "src-video-julien-rochedy-rassemblement-national",
-          "title": "Vidéo YouTube 9md5AXZbUow",
-          "publisher": "YouTube — chaîne et titre à confirmer",
-          "publishedAt": "Date à vérifier",
+          "title": "Témoignage vidéo de Julien Rochedy sur son parcours au Front national",
+          "publisher": "Julien Rochedy — YouTube",
+          "publishedAt": "Date de publication à vérifier",
           "url": "https://youtu.be/9md5AXZbUow",
           "accessedAt": "2026-11-04",
-          "note": "Vidéo fournie par l’utilisateur pour documenter cette relation. Son titre, sa chaîne, sa date et son contenu restent à contrôler, l’accès à YouTube étant indisponible depuis l’environnement de travail."
+          "note": "Transcription fournie par l’utilisateur. Passages retenus : prise de carte en septembre 2006 (6:44–6:52), directeur national du FNJ en septembre 2012 (52:27–52:43), fin du FNJ à l’été 2014 (1:31:10–1:31:32) et départ du Front national vers novembre 2014 (1:36:37–1:37:03). Il s’agit d’un témoignage à la première personne ; les dates et l’intitulé officiel de la fonction restent à recouper indépendamment."
         }
-      ]
+      ],
+      "period": {
+        "from": "2006-09",
+        "to": "2014-11",
+        "label": "Parcours déclaré au Front national : septembre 2006 — novembre 2014"
+      }
     },
     {
       "id": "person-alain-soral",
@@ -143,8 +148,8 @@
       "id": "organization-rassemblement-national",
       "label": "Rassemblement national",
       "category": "organization",
-      "summary": "Organisation reliée à Alain Soral et Julien Rochedy par des mentions restant à vérifier.",
-      "description": "Cette fiche représente les relations demandées avec Alain Soral et Julien Rochedy. Pour Julien Rochedy, le lien porte sur une fonction dirigeante alléguée au Front national de la jeunesse ; la vidéo fournie est référencée, mais son contenu et ses métadonnées restent à contrôler.",
+      "summary": "Organisation reliée à Julien Rochedy par son parcours déclaré au Front national et à Alain Soral par une mention restant à vérifier.",
+      "description": "La relation avec Julien Rochedy est documentée par son témoignage vidéo sur son parcours au Front national : adhésion déclarée en 2006, direction nationale du FNJ attestée dans son récit en 2012, fin du FNJ puis départ du parti en 2014. Les dates restent à recouper indépendamment. La relation avec Alain Soral demeure non sourcée.",
       "status": "Organisation — relations associées à vérifier",
       "tags": [
         "organisation",
@@ -166,12 +171,12 @@
         },
         {
           "id": "src-video-julien-rochedy-rassemblement-national",
-          "title": "Vidéo YouTube 9md5AXZbUow",
-          "publisher": "YouTube — chaîne et titre à confirmer",
-          "publishedAt": "Date à vérifier",
+          "title": "Témoignage vidéo de Julien Rochedy sur son parcours au Front national",
+          "publisher": "Julien Rochedy — YouTube",
+          "publishedAt": "Date de publication à vérifier",
           "url": "https://youtu.be/9md5AXZbUow",
           "accessedAt": "2026-11-04",
-          "note": "Vidéo fournie par l’utilisateur pour documenter cette relation. Son titre, sa chaîne, sa date et son contenu restent à contrôler, l’accès à YouTube étant indisponible depuis l’environnement de travail."
+          "note": "Transcription fournie par l’utilisateur. Passages retenus : prise de carte en septembre 2006 (6:44–6:52), directeur national du FNJ en septembre 2012 (52:27–52:43), fin du FNJ à l’été 2014 (1:31:10–1:31:32) et départ du Front national vers novembre 2014 (1:36:37–1:37:03). Il s’agit d’un témoignage à la première personne ; les dates et l’intitulé officiel de la fonction restent à recouper indépendamment."
         }
       ]
     }
@@ -246,21 +251,26 @@
       "target": "organization-rassemblement-national",
       "type": "documentary",
       "label": "A dirigé le Front national de la jeunesse",
-      "description": "Julien Rochedy est présenté comme un ancien dirigeant du Front national de la jeunesse, rattaché ici au Rassemblement national. La vidéo YouTube fournie est une source identifiable, mais son contenu, ses métadonnées, l’intitulé exact de la fonction et sa période restent à contrôler.",
-      "documentaryStatus": "alleged",
+      "description": "Dans un témoignage vidéo à la première personne, Julien Rochedy déclare être directeur national du Front national de la jeunesse en septembre 2012 et situe la fin de cette fonction à l’été 2014. Cette source directe établit son propre récit du lien ; les dates et l’intitulé officiel de la fonction restent à recouper indépendamment.",
+      "documentaryStatus": "established",
       "lastVerifiedAt": "2026-11-04",
       "sources": [
         {
           "id": "src-video-julien-rochedy-rassemblement-national",
-          "title": "Vidéo YouTube 9md5AXZbUow",
-          "publisher": "YouTube — chaîne et titre à confirmer",
-          "publishedAt": "Date à vérifier",
+          "title": "Témoignage vidéo de Julien Rochedy sur son parcours au Front national",
+          "publisher": "Julien Rochedy — YouTube",
+          "publishedAt": "Date de publication à vérifier",
           "url": "https://youtu.be/9md5AXZbUow",
           "accessedAt": "2026-11-04",
-          "note": "Vidéo fournie par l’utilisateur pour documenter cette relation. Son titre, sa chaîne, sa date et son contenu restent à contrôler, l’accès à YouTube étant indisponible depuis l’environnement de travail."
+          "note": "Transcription fournie par l’utilisateur. Passages retenus : prise de carte en septembre 2006 (6:44–6:52), directeur national du FNJ en septembre 2012 (52:27–52:43), fin du FNJ à l’été 2014 (1:31:10–1:31:32) et départ du Front national vers novembre 2014 (1:36:37–1:37:03). Il s’agit d’un témoignage à la première personne ; les dates et l’intitulé officiel de la fonction restent à recouper indépendamment."
         }
       ],
-      "color": "#f02f7d"
+      "color": "#f02f7d",
+      "period": {
+        "from": "2012-09",
+        "to": "2014",
+        "label": "Direction du FNJ déclarée : attestée en septembre 2012 — fin à l’été 2014"
+      }
     }
   ]
 }
