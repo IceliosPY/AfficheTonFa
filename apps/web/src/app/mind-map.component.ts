@@ -54,6 +54,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() filters: BoardFilters = {};
   @Input() selectedNodeId?: string;
   @Input() selectedEdgeId?: string;
+  @Input() labelMode: 'nearby' | 'always' = 'nearby';
   @Output() readonly nodeSelected = new EventEmitter<GraphNode | null>();
   @Output() readonly edgeSelected = new EventEmitter<GraphEdge | null>();
 
@@ -196,11 +197,12 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private updateZoomLabels(): void {
-    if (!this.controls || !this.renderer || this.camera.position.distanceTo(this.controls.target) > this.defaultDistance * .62) { this.clearZoomLabels(); return; }
+    if (!this.controls || !this.renderer || (this.labelMode === 'nearby' && this.camera.position.distanceTo(this.controls.target) > this.defaultDistance * .62)) { this.clearZoomLabels(); return; }
     const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
-    const projected = [...this.nodePositions].map(([id, position]) => ({ id, position: position.clone().project(this.camera), distance: position.distanceTo(this.camera.position) }))
+    const projectedNodes = [...this.nodePositions].map(([id, position]) => ({ id, position: position.clone().project(this.camera), distance: position.distanceTo(this.camera.position) }))
       .filter(({ position }) => position.z >= -1 && position.z <= 1 && Math.abs(position.x) <= 1.05 && Math.abs(position.y) <= 1.05)
-      .sort((left, right) => left.distance - right.distance).slice(0, 60);
+      .sort((left, right) => left.distance - right.distance);
+    const projected = this.labelMode === 'always' ? projectedNodes : projectedNodes.slice(0, 60);
     const visible = new Set(projected.map(({ id }) => id));
     for (const { id, position } of projected) {
       let element = this.zoomLabelElements.get(id);

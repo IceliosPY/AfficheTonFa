@@ -26,6 +26,7 @@ const categoryLabels: Record<NodeCategory, string> = {
             <button type="button" (click)="viewMode = 'document'" [class.active]="viewMode === 'document'">Fiches</button>
           </div>
           <button type="button" (click)="resetActiveView()" title="Revenir à la vue générale" *ngIf="viewMode !== 'document'">Vue générale</button>
+          <button type="button" class="settings-button" (click)="settingsOpen = true" [class.active]="settingsOpen" aria-haspopup="dialog">⚙ Paramètres</button>
         </div>
       </header>
 
@@ -55,7 +56,7 @@ const categoryLabels: Record<NodeCategory, string> = {
           <span>TABLEAU 01 / {{ graph?.nodes?.length || 0 }} FICHES</span>
           <span class="live pending">● DONNÉES EN COURS DE VÉRIFICATION</span>
         </div>
-        <atf-mind-map #mindMap *ngIf="viewMode === 'mind'" [graph]="graph" [filters]="filters" [selectedNodeId]="selectedNode?.id" [selectedEdgeId]="selectedEdge?.id" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-mind-map>
+        <atf-mind-map #mindMap *ngIf="viewMode === 'mind'" [graph]="graph" [filters]="filters" [selectedNodeId]="selectedNode?.id" [selectedEdgeId]="selectedEdge?.id" [labelMode]="mindMapLabelMode" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-mind-map>
         <atf-board-canvas #board *ngIf="viewMode === 'board'" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
         <section class="document-view" *ngIf="viewMode === 'document'" aria-label="Vue documentaire accessible">
           <div class="document-card" *ngFor="let node of filteredNodes" tabindex="0" (click)="selectNode(node)" (keydown.enter)="selectNode(node)">
@@ -65,6 +66,25 @@ const categoryLabels: Record<NodeCategory, string> = {
         <div class="controls-hint" *ngIf="viewMode === 'mind'">glisser pour se déplacer · molette pour zoomer · cliquer pour ouvrir</div>
         <div class="controls-hint" *ngIf="viewMode === 'board'"><kbd>⇧</kbd> + glisser une fiche · molette pour zoomer · flèches au clavier</div>
       </main>
+
+      <div class="settings-backdrop" *ngIf="settingsOpen" (click)="settingsOpen = false"></div>
+      <aside class="settings-panel" [class.open]="settingsOpen" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <button class="settings-close" type="button" (click)="settingsOpen = false" aria-label="Fermer les paramètres">×</button>
+        <span class="settings-eyebrow">PRÉFÉRENCES D’AFFICHAGE</span>
+        <h2 id="settings-title">Paramètres</h2>
+        <section>
+          <h3>Carte à points</h3>
+          <p>Choisissez quand les noms apparaissent autour des points.</p>
+          <div class="setting-options" role="radiogroup" aria-label="Affichage des noms">
+            <button type="button" role="radio" [attr.aria-checked]="mindMapLabelMode === 'nearby'" [class.selected]="mindMapLabelMode === 'nearby'" (click)="setMindMapLabelMode('nearby')">
+              <span>Selon la proximité</span><small>Les noms apparaissent lorsque vous vous rapprochez.</small>
+            </button>
+            <button type="button" role="radio" [attr.aria-checked]="mindMapLabelMode === 'always'" [class.selected]="mindMapLabelMode === 'always'" (click)="setMindMapLabelMode('always')">
+              <span>Toujours visibles</span><small>Les noms restent affichés quelle que soit la distance.</small>
+            </button>
+          </div>
+        </section>
+      </aside>
 
       <aside class="detail-panel" [class.open]="selectedNode || selectedEdge" aria-live="polite">
         <button class="close" type="button" (click)="closeDetails()" aria-label="Fermer le panneau">×</button>
@@ -106,10 +126,17 @@ export class AppComponent implements OnInit {
   activeCategories = new Set<NodeCategory>();
   filters: BoardFilters = {};
   viewMode: 'mind' | 'board' | 'document' = 'mind';
+  settingsOpen = false;
+  mindMapLabelMode: 'nearby' | 'always' = 'nearby';
 
   constructor(private readonly changeDetector: ChangeDetectorRef) {}
 
-  ngOnInit(): void { void this.loadGraph(); }
+  ngOnInit(): void {
+    try {
+      if (localStorage.getItem('atf.mindMapLabelMode') === 'always') this.mindMapLabelMode = 'always';
+    } catch { /* Le stockage peut être désactivé par le navigateur. */ }
+    void this.loadGraph();
+  }
 
   get searchResults(): GraphNode[] {
     const value = this.query.trim().toLocaleLowerCase('fr');
@@ -127,6 +154,10 @@ export class AppComponent implements OnInit {
   closeDetails(): void { this.selectedNode = null; this.selectedEdge = null; this.board?.selectNode(''); this.board?.selectEdge(''); }
   focus(node: GraphNode): void { this.selectedNode = node; this.selectedEdge = null; this.board?.focusNode(node.id); this.mindMap?.focusNode(node.id); }
   resetActiveView(): void { this.viewMode === 'mind' ? this.mindMap?.resetView() : this.board?.resetCamera(); }
+  setMindMapLabelMode(mode: 'nearby' | 'always'): void {
+    this.mindMapLabelMode = mode;
+    try { localStorage.setItem('atf.mindMapLabelMode', mode); } catch { /* Le réglage reste actif pour la session. */ }
+  }
   toggleCategory(category: NodeCategory): void {
     this.activeCategories.has(category) ? this.activeCategories.delete(category) : this.activeCategories.add(category);
     this.activeCategories = new Set(this.activeCategories);

@@ -41,6 +41,7 @@
 .view-switch button:last-child { border-right: 0; }
 .view-switch button.active { background: #a9342f; color: #fff; }
 .top-actions button:hover { border-color: #a9342f; color: #fff; }
+.settings-button.active { border-color: #a9342f; color: #fff; background: #2a201e; }
 
 .left-panel {
   grid-column: 1;
@@ -175,6 +176,56 @@
 }
 .controls-hint kbd { color: #d4cdc0; }
 
+.settings-backdrop {
+  position: fixed;
+  z-index: 11;
+  inset: 0;
+  background: #0507068f;
+  backdrop-filter: blur(2px);
+}
+.settings-panel {
+  position: fixed;
+  z-index: 12;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  width: min(390px, 92vw);
+  box-sizing: border-box;
+  padding: 42px 32px;
+  background: #171917;
+  border-left: 1px solid #ffffff1a;
+  box-shadow: -18px 0 45px #0008;
+  color: #e9e2d5;
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform .25s ease, visibility 0s linear .25s;
+}
+.settings-panel.open { transform: translateX(0); visibility: visible; transition-delay: 0s; }
+.settings-close { position: absolute; top: 14px; right: 18px; border: 0; background: transparent; color: #9a9388; font: 300 28px system-ui; cursor: pointer; }
+.settings-close:hover { color: #fff; }
+.settings-eyebrow { color: #b44c46; font: 600 8px ui-monospace, monospace; letter-spacing: .16em; }
+.settings-panel h2 { margin: 8px 0 34px; font: 700 28px Georgia, serif; }
+.settings-panel section { border-top: 1px solid #ffffff14; padding-top: 22px; }
+.settings-panel h3 { margin: 0 0 8px; font: 600 13px system-ui, sans-serif; }
+.settings-panel section > p { margin: 0 0 17px; color: #8e887e; font: 11px/1.5 system-ui, sans-serif; }
+.setting-options { display: grid; gap: 8px; }
+.setting-options button {
+  display: grid;
+  gap: 5px;
+  position: relative;
+  padding: 14px 15px 14px 38px;
+  border: 1px solid #ffffff16;
+  background: #101210;
+  color: #cfc8bd;
+  text-align: left;
+  cursor: pointer;
+}
+.setting-options button::before { content: ''; position: absolute; left: 15px; top: 17px; width: 9px; height: 9px; border: 1px solid #77736c; border-radius: 50%; }
+.setting-options button.selected { border-color: #a9342f; background: #231918; color: #fff; }
+.setting-options button.selected::before { border-color: #d7675e; background: #d7675e; box-shadow: inset 0 0 0 2px #231918; }
+.setting-options span { font: 600 11px system-ui, sans-serif; }
+.setting-options small { color: #817c73; font: 10px/1.4 system-ui, sans-serif; }
+
 .detail-panel {
   position: fixed;
   z-index: 10;
@@ -235,6 +286,7 @@
   .context, .left-panel { display: none; }
   .workspace { grid-column: 1; grid-row: 2; }
   .detail-panel { top: 52px; width: min(360px, 92vw); }
+  .settings-panel { top: 52px; }
   .controls-hint { display: none; }
   .top-actions button { font-size: 8px; padding: 7px; }
 }
