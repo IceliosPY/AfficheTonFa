@@ -319,6 +319,33 @@
           "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
         }
       ]
+    },
+    {
+      "id": "person-thais-descufon",
+      "label": "Thaïs d’Escufon",
+      "category": "person",
+      "imageUrl": "assets/nodes/thais-descufon.webp",
+      "summary": "Personne reliée à Génération identitaire par une fonction de porte-parole.",
+      "description": "Thaïs d’Escufon est présentée sur cette page personnelle comme ayant été porte-parole de Génération identitaire.",
+      "status": "Information éditoriale personnelle",
+      "tags": [
+        "porte-parole"
+      ],
+      "position": {
+        "x": -4.8,
+        "y": 4.6,
+        "rotation": 0.01
+      },
+      "sources": [
+        {
+          "id": "src-thais-descufon-generation-identitaire-editorial",
+          "title": "Fonction de porte-parole de Génération identitaire",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Relation indiquée par le propriétaire de cette page personnelle."
+        }
+      ]
     }
   ],
   "edges": [
@@ -492,6 +519,27 @@
           "publishedAt": "Non daté",
           "accessedAt": "2026-11-05",
           "note": "Collaboration en tant qu’humoristes indiquée par le propriétaire de cette page personnelle, sans source précise jointe."
+        }
+      ],
+      "color": "#f02f7d"
+    },
+    {
+      "id": "rel-thais-descufon-generation-identitaire-porte-parole",
+      "source": "person-thais-descufon",
+      "target": "organization-generation-identitaire",
+      "type": "documentary",
+      "label": "A été porte-parole",
+      "description": "Thaïs d’Escufon est présentée sur cette page personnelle comme ayant été porte-parole de Génération identitaire.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-05",
+      "sources": [
+        {
+          "id": "src-thais-descufon-generation-identitaire-editorial",
+          "title": "Fonction de porte-parole de Génération identitaire",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Relation indiquée par le propriétaire de cette page personnelle."
         }
       ],
       "color": "#f02f7d"
