@@ -209,6 +209,34 @@
           "note": "Amitié passée et séparation attribuée à des divergences de ligne dans le cadre éditorial de cette page personnelle."
         }
       ]
+    },
+    {
+      "id": "organization-generation-identitaire",
+      "label": "Génération identitaire",
+      "category": "organization",
+      "summary": "Groupe relié au Rassemblement national dans cette cartographie personnelle.",
+      "description": "Cette fiche représente Génération identitaire comme un groupe lié au Rassemblement national dans la ligne éditoriale de cette page personnelle.",
+      "status": "Information éditoriale personnelle",
+      "tags": [
+        "groupe",
+        "organisation",
+        "relation éditoriale"
+      ],
+      "position": {
+        "x": -4.2,
+        "y": 3.4,
+        "rotation": -0.012
+      },
+      "sources": [
+        {
+          "id": "src-generation-identitaire-rassemblement-national-editorial",
+          "title": "Lien entre Génération identitaire et le Rassemblement national",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-04",
+          "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
+        }
+      ]
     }
   ],
   "edges": [
@@ -319,6 +347,27 @@
           "publishedAt": "Non daté",
           "accessedAt": "2026-11-04",
           "note": "Amitié passée et séparation attribuée à des divergences de ligne dans le cadre éditorial de cette page personnelle."
+        }
+      ],
+      "color": "#f02f7d"
+    },
+    {
+      "id": "rel-generation-identitaire-rassemblement-national",
+      "source": "organization-generation-identitaire",
+      "target": "organization-rassemblement-national",
+      "type": "documentary",
+      "label": "Liens avec",
+      "description": "Cette page personnelle présente des liens entre Génération identitaire et le Rassemblement national.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-04",
+      "sources": [
+        {
+          "id": "src-generation-identitaire-rassemblement-national-editorial",
+          "title": "Lien entre Génération identitaire et le Rassemblement national",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-04",
+          "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
         }
       ],
       "color": "#f02f7d"
