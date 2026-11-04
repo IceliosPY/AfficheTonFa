@@ -162,6 +162,7 @@ const categoryLabels: Record<NodeCategory, string> = {
         <div class="site-footer-inner">
           <p class="project-credit"><strong>AFFICHE TONFA</strong><span>·</span><span>un projet</span><img src="assets/logo-transfem-era.png" alt="Transfem Era"></p>
           <nav aria-label="Liens de pied de page">
+            <a href="assets/nodes/credits.html" target="_blank">Crédits images</a>
             <a href="https://github.com/IceliosPY/AfficheTonFa" target="_blank" rel="noreferrer">Code source</a>
             <a href="#top">Haut de page ↑</a>
           </nav>

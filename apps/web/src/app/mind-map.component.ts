@@ -23,6 +23,7 @@ const categoryTextColors: Record<NodeCategory, string> = {
   template: `
     <div #host class="mind-host">
       <canvas #canvas aria-label="Graphe 3D interactif des relations"></canvas>
+      <div #nodeVisuals class="node-visuals" aria-hidden="true"></div>
       <div #label class="node-label" aria-hidden="true"></div>
       <div #zoomLabels class="zoom-labels" aria-hidden="true"></div>
       <div class="loading" *ngIf="!graph">Organisation du réseau…</div>
@@ -37,8 +38,9 @@ const categoryTextColors: Record<NodeCategory, string> = {
     :host,.mind-host{display:block;width:100%;height:100%;min-height:300px;position:relative;overflow:hidden;background:#211238}
     canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
     canvas:active{cursor:grabbing}
-    .node-label{position:absolute;z-index:3;display:none;pointer-events:none;translate:10px -50%;padding:4px 7px;background:#1b102ee8;border:1px solid #ff559653;color:#ffe1ed;font:600 11px ui-sans-serif,system-ui,sans-serif;white-space:nowrap}
-    .zoom-labels{position:absolute;z-index:2;inset:0;overflow:hidden;pointer-events:none}
+    .node-visuals{position:absolute;z-index:2;inset:0;overflow:hidden;pointer-events:none}
+    .node-label{position:absolute;z-index:4;display:none;pointer-events:none;translate:10px -50%;padding:4px 7px;background:#1b102ee8;border:1px solid #ff559653;color:#ffe1ed;font:600 11px ui-sans-serif,system-ui,sans-serif;white-space:nowrap}
+    .zoom-labels{position:absolute;z-index:3;inset:0;overflow:hidden;pointer-events:none}
     .loading{position:absolute;left:50%;top:50%;translate:-50% -50%;padding:.75rem 1rem;background:#1b102ee8;border:1px solid #ff4b9138;color:#f5dae5;font-size:12px}
     .map-tools{position:absolute;right:16px;bottom:16px;display:flex;background:#1b102ed9;border:1px solid #ff4b912e}
     .map-tools button{min-width:34px;height:32px;border:0;border-right:1px solid #ff4b9124;background:transparent;color:#c99bb4;font:600 10px ui-monospace,monospace;cursor:pointer}
@@ -48,6 +50,7 @@ const categoryTextColors: Record<NodeCategory, string> = {
 export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('host', { static: true }) host!: ElementRef<HTMLElement>;
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('nodeVisuals', { static: true }) nodeVisuals!: ElementRef<HTMLElement>;
   @ViewChild('label', { static: true }) label!: ElementRef<HTMLElement>;
   @ViewChild('zoomLabels', { static: true }) zoomLabels!: ElementRef<HTMLElement>;
   @Input() graph?: InvestigationGraph;
@@ -76,6 +79,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private defaultTarget = new Vector3();
   private defaultDistance = 14;
   private cameraTransition?: { from: Vector3; to: Vector3; targetFrom: Vector3; targetTo: Vector3; startedAt: number };
+  private readonly nodeVisualElements = new Map<string, HTMLDivElement>();
   private readonly zoomLabelElements = new Map<string, HTMLElement>();
   private readonly pointTexture = this.createPointTexture();
 
@@ -160,7 +164,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
     const lineGeometry = new BufferGeometry(); lineGeometry.setAttribute('position', new Float32BufferAttribute(linePositions, 3)); lineGeometry.setAttribute('color', new Float32BufferAttribute(lineColors, 3));
     this.edgeLines = new LineSegments(lineGeometry, new LineBasicMaterial({ vertexColors: true, transparent: true, opacity: this.selectedEdgeId ? .86 : .6, depthWrite: false }));
-    this.scene.add(this.edgeLines); if (fitView) this.fitCamera();
+    this.scene.add(this.edgeLines); this.createNodeVisuals(visibleNodes); if (fitView) this.fitCamera();
   }
 
   private fitCamera(): void {
@@ -176,18 +180,59 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private clearGraph(): void {
     if (this.pointCloud) { this.scene.remove(this.pointCloud); this.pointCloud.geometry.dispose(); this.pointCloud.material.dispose(); this.pointCloud = undefined; }
     if (this.edgeLines) { this.scene.remove(this.edgeLines); this.edgeLines.geometry.dispose(); this.edgeLines.material.dispose(); this.edgeLines = undefined; }
-    this.nodeIds = []; this.edgeIds = []; this.nodePositions.clear(); this.hideLabel(); this.clearZoomLabels();
+    this.nodeIds = []; this.edgeIds = []; this.nodePositions.clear(); this.hideLabel(); this.clearZoomLabels(); this.clearNodeVisuals();
   }
 
   private resize(): void {
     if (!this.renderer) return; const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
-    this.renderer.setSize(width, height, false); this.camera.aspect = Math.max(1, width) / Math.max(1, height); this.camera.updateProjectionMatrix(); this.updateZoomLabels();
+    this.renderer.setSize(width, height, false); this.camera.aspect = Math.max(1, width) / Math.max(1, height); this.camera.updateProjectionMatrix(); this.updateNodeVisuals(); this.updateZoomLabels();
   }
 
   private animate = (): void => {
     if (!this.initialized || !this.renderer) return; this.animationFrame = requestAnimationFrame(this.animate); this.updateCameraTransition(); this.controls?.update(); this.renderer.render(this.scene, this.camera);
-    this.updateZoomLabels();
+    this.updateNodeVisuals(); this.updateZoomLabels();
   };
+
+  private createNodeVisuals(nodes: GraphNode[]): void {
+    for (const node of nodes) {
+      const visual = document.createElement('div'); const color = categoryColors[node.category];
+      Object.assign(visual.style, {
+        position: 'absolute', left: '0', top: '0', width: '52px', height: '52px', borderRadius: '50%', boxSizing: 'border-box',
+        border: `3px solid ${color}`, background: node.category === 'organization' ? '#f5f2e9' : '#211238',
+        boxShadow: `0 0 0 2px #211238, 0 0 20px ${color}a8`, overflow: 'hidden', willChange: 'transform',
+      });
+      const image = document.createElement('img'); image.src = node.imageUrl ?? ''; image.alt = ''; image.decoding = 'async'; image.loading = 'eager';
+      Object.assign(image.style, {
+        display: node.imageUrl ? 'block' : 'none', width: '100%', height: '100%',
+        objectFit: node.category === 'organization' ? 'contain' : 'cover', objectPosition: 'center',
+      });
+      const fallback = document.createElement('span');
+      fallback.textContent = node.label.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toLocaleUpperCase('fr');
+      Object.assign(fallback.style, {
+        display: node.imageUrl ? 'none' : 'grid', width: '100%', height: '100%', placeItems: 'center',
+        color: categoryTextColors[node.category], font: '700 15px ui-sans-serif,system-ui,sans-serif',
+      });
+      image.addEventListener('error', () => { image.style.display = 'none'; fallback.style.display = 'grid'; });
+      visual.append(image, fallback); this.nodeVisuals.nativeElement.append(visual); this.nodeVisualElements.set(node.id, visual);
+    }
+  }
+
+  private updateNodeVisuals(): void {
+    const width = this.host.nativeElement.clientWidth; const height = this.host.nativeElement.clientHeight;
+    for (const [id, element] of this.nodeVisualElements) {
+      const worldPosition = this.nodePositions.get(id); if (!worldPosition) { element.style.display = 'none'; continue; }
+      const projected = worldPosition.clone().project(this.camera);
+      const visible = projected.z >= -1 && projected.z <= 1 && Math.abs(projected.x) <= 1.08 && Math.abs(projected.y) <= 1.08;
+      element.style.display = visible ? 'block' : 'none'; if (!visible) continue;
+      const x = (projected.x + 1) * .5 * width; const y = (1 - projected.y) * .5 * height;
+      const perspectiveScale = Math.min(1.28, Math.max(.78, this.defaultDistance / Math.max(.1, worldPosition.distanceTo(this.camera.position))));
+      const selectedScale = id === this.selectedNodeId ? 1.18 : 1;
+      element.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) scale(${perspectiveScale * selectedScale})`;
+      element.style.zIndex = `${Math.round(1000 - (projected.z + 1) * 500)}`;
+    }
+  }
+
+  private clearNodeVisuals(): void { for (const element of this.nodeVisualElements.values()) element.remove(); this.nodeVisualElements.clear(); }
 
   private updateCameraTransition(): void {
     const transition = this.cameraTransition; if (!transition || !this.controls) return;
@@ -212,7 +257,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         this.zoomLabels.nativeElement.append(element); element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' }); this.zoomLabelElements.set(id, element);
       }
       const x = (position.x + 1) * .5 * width; const y = (1 - position.y) * .5 * height;
-      element.style.transform = `translate3d(${x}px,${y}px,0) translate(15px,-50%)`;
+      element.style.transform = `translate3d(${x}px,${y}px,0) translate(34px,-50%)`;
     }
     for (const [id, element] of this.zoomLabelElements) if (!visible.has(id)) { element.remove(); this.zoomLabelElements.delete(id); }
   }
