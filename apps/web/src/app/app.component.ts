@@ -111,8 +111,15 @@ const categoryLabels: Record<NodeCategory, string> = {
         <div class="detail-content">
         <ng-container *ngIf="selectedNode as node">
           <header class="detail-hero">
-            <span class="detail-type" [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span>
-            <h2>{{ node.label }}</h2><p class="lead">{{ node.summary }}</p>
+            <div class="detail-hero-layout">
+              <div class="detail-hero-copy">
+                <span class="detail-type" [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span>
+                <h2>{{ node.label }}</h2><p class="lead">{{ node.summary }}</p>
+              </div>
+              <figure class="detail-portrait" *ngIf="node.imageUrl" [attr.data-category]="node.category">
+                <img [src]="node.imageUrl" [alt]="node.category === 'organization' ? 'Logo de ' + node.label : 'Portrait de ' + node.label">
+              </figure>
+            </div>
           </header>
           <section class="detail-section">
             <div class="section-heading"><h3>Note documentaire</h3><span>Synthèse</span></div>
