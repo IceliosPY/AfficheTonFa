@@ -179,6 +179,36 @@
           "note": "Transcription fournie par l’utilisateur. Passages retenus : prise de carte en septembre 2006 (6:44–6:52), directeur national du FNJ en septembre 2012 (52:27–52:43), fin du FNJ à l’été 2014 (1:31:10–1:31:32) et départ du Front national vers novembre 2014 (1:36:37–1:37:03). Il s’agit d’un témoignage à la première personne ; les dates et l’intitulé officiel de la fonction restent à recouper indépendamment."
         }
       ]
+    },
+    {
+      "id": "person-loik-le-priol",
+      "label": "Loïk Le Priol",
+      "category": "person",
+      "summary": "Personne reliée à Julien Rochedy par une amitié passée puis un éloignement mentionné.",
+      "description": "Selon l’affirmation fournie par l’utilisateur, Loïk Le Priol et Julien Rochedy auraient été amis avant de se séparer en raison de divergences de ligne. La période, le contexte, la nature exacte de ces divergences et une source indépendante restent à établir.",
+      "aliases": [
+        "Loik le Priol"
+      ],
+      "status": "Fiche de test — relation personnelle à vérifier",
+      "tags": [
+        "relation personnelle à vérifier",
+        "divergences de ligne alléguées"
+      ],
+      "position": {
+        "x": 4.1,
+        "y": 2.7,
+        "rotation": 0.014
+      },
+      "sources": [
+        {
+          "id": "src-loik-le-priol-julien-rochedy-reference-utilisateur",
+          "title": "Amitié passée entre Loïk Le Priol et Julien Rochedy",
+          "publisher": "Affirmation fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-04",
+          "note": "Amitié passée et séparation attribuée à des divergences de ligne pour construire le graphe ; période, contexte, nature exacte des divergences et source indépendante restent à vérifier."
+        }
+      ]
     }
   ],
   "edges": [
@@ -271,6 +301,27 @@
         "to": "2014",
         "label": "Direction du FNJ déclarée : attestée en septembre 2012 — fin à l’été 2014"
       }
+    },
+    {
+      "id": "rel-loik-le-priol-julien-rochedy-amitie-rupture",
+      "source": "person-loik-le-priol",
+      "target": "person-julien-rochedy",
+      "type": "documentary",
+      "label": "Amis, puis séparés par des divergences de ligne",
+      "description": "Loïk Le Priol et Julien Rochedy sont présentés par l’utilisateur comme d’anciens amis qui se seraient ensuite éloignés en raison de divergences de ligne. Cette affirmation, sa période et son contexte restent à confirmer par une source identifiable.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-04",
+      "sources": [
+        {
+          "id": "src-loik-le-priol-julien-rochedy-reference-utilisateur",
+          "title": "Amitié passée entre Loïk Le Priol et Julien Rochedy",
+          "publisher": "Affirmation fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-04",
+          "note": "Amitié passée et séparation attribuée à des divergences de ligne pour construire le graphe ; période, contexte, nature exacte des divergences et source indépendante restent à vérifier."
+        }
+      ],
+      "color": "#f02f7d"
     }
   ]
 }

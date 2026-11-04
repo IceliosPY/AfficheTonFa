@@ -248,7 +248,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private hideLabel(): void { if (this.label) this.label.nativeElement.style.display = 'none'; }
   private nodeVisible(node: GraphNode): boolean {
     const categories = this.filters.categories ?? []; const query = this.filters.query?.trim().toLocaleLowerCase('fr') ?? '';
-    return (!categories.length || categories.includes(node.category)) && (!query || `${node.label} ${node.summary} ${node.description}`.toLocaleLowerCase('fr').includes(query));
+    return (!categories.length || categories.includes(node.category)) && (!query || `${node.label} ${(node.aliases ?? []).join(' ')} ${node.summary} ${node.description} ${(node.tags ?? []).join(' ')}`.toLocaleLowerCase('fr').includes(query));
   }
   private edgeVisible(edge: GraphEdge): boolean {
     const types = this.filters.relationTypes ?? []; const statuses = this.filters.documentaryStatuses ?? [];

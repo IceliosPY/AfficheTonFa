@@ -254,5 +254,5 @@ export class AppComponent implements OnInit {
     this.graph = await new StaticJsonDataProvider('data/v1/graphs').loadGraph('demonstration');
     this.changeDetector.detectChanges();
   }
-  private searchableText(node: GraphNode): string { return `${node.label} ${node.summary} ${node.description}`.toLocaleLowerCase('fr'); }
+  private searchableText(node: GraphNode): string { return `${node.label} ${(node.aliases ?? []).join(' ')} ${node.summary} ${node.description} ${(node.tags ?? []).join(' ')}`.toLocaleLowerCase('fr'); }
 }
