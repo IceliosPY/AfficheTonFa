@@ -102,6 +102,60 @@
           "note": "Titre et attribution fournis pour construire la relation ; édition, date, auteurs et source bibliographique à vérifier."
         }
       ]
+    },
+    {
+      "id": "person-alain-soral",
+      "label": "Alain Soral",
+      "category": "person",
+      "summary": "Fiche de test reliée au Rassemblement national par un lien dont la nature reste à préciser.",
+      "description": "Cette fiche est ajoutée à partir d’une demande de l’utilisateur. La nature, la période et le contexte du lien mentionné avec le Rassemblement national restent à documenter avec une source identifiable.",
+      "status": "Fiche de test — lien à vérifier",
+      "tags": [
+        "fiche de test",
+        "lien organisationnel à vérifier"
+      ],
+      "position": {
+        "x": -3.1,
+        "y": -3,
+        "rotation": 0.018
+      },
+      "sources": [
+        {
+          "id": "src-soral-rn-reference-utilisateur",
+          "title": "Lien entre Alain Soral et le Rassemblement national",
+          "publisher": "Référence fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-04",
+          "note": "Lien demandé pour construire le graphe ; nature, période, contexte et source à vérifier."
+        }
+      ]
+    },
+    {
+      "id": "organization-rassemblement-national",
+      "label": "Rassemblement national",
+      "category": "organization",
+      "summary": "Organisation ajoutée pour représenter un lien mentionné avec Alain Soral.",
+      "description": "Cette fiche sert à représenter la relation demandée avec Alain Soral. Les éléments décrivant cette relation restent à confirmer par une source identifiable.",
+      "status": "Organisation — relation associée à vérifier",
+      "tags": [
+        "organisation",
+        "relation à vérifier"
+      ],
+      "position": {
+        "x": 3.1,
+        "y": -3,
+        "rotation": -0.015
+      },
+      "sources": [
+        {
+          "id": "src-soral-rn-reference-utilisateur",
+          "title": "Lien entre Alain Soral et le Rassemblement national",
+          "publisher": "Référence fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-04",
+          "note": "Lien demandé pour construire le graphe ; nature, période, contexte et source à vérifier."
+        }
+      ]
     }
   ],
   "edges": [
@@ -143,6 +197,27 @@
           "publishedAt": "Date à vérifier",
           "accessedAt": "2026-11-04",
           "note": "Titre et attribution fournis pour construire la relation ; édition, date, auteurs et source bibliographique à vérifier."
+        }
+      ],
+      "color": "#f02f7d"
+    },
+    {
+      "id": "rel-alain-soral-rassemblement-national",
+      "source": "person-alain-soral",
+      "target": "organization-rassemblement-national",
+      "type": "documentary",
+      "label": "Lien mentionné",
+      "description": "Lien mentionné par l’utilisateur entre Alain Soral et le Rassemblement national. Sa nature, sa période et son contexte restent à confirmer par une source identifiable.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-04",
+      "sources": [
+        {
+          "id": "src-soral-rn-reference-utilisateur",
+          "title": "Lien entre Alain Soral et le Rassemblement national",
+          "publisher": "Référence fournie par l’utilisateur",
+          "publishedAt": "Date à vérifier",
+          "accessedAt": "2026-11-04",
+          "note": "Lien demandé pour construire le graphe ; nature, période, contexte et source à vérifier."
         }
       ],
       "color": "#f02f7d"
