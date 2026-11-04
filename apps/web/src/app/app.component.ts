@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StaticJsonDataProvider } from '@affichetonfa/board-core';
 import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph, NodeCategory } from '@affichetonfa/shared-types';
@@ -15,7 +15,7 @@ const categoryLabels: Record<NodeCategory, string> = {
   standalone: true,
   imports: [CommonModule, FormsModule, BoardCanvasComponent, MindMapComponent],
   template: `
-    <div class="app-shell">
+    <div class="app-shell" id="top">
       <header class="topbar">
         <div class="brand-small"><span class="mark">A</span><span>AFFICHE<span>TONFA</span></span></div>
         <div class="context"><span class="eyebrow">DOSSIER ACTIF</span><strong>{{ graph?.title || 'Chargement…' }}</strong></div>
@@ -26,7 +26,7 @@ const categoryLabels: Record<NodeCategory, string> = {
             <button type="button" (click)="viewMode = 'document'" [class.active]="viewMode === 'document'">Fiches</button>
           </div>
           <button type="button" (click)="resetActiveView()" title="Revenir à la vue générale" *ngIf="viewMode !== 'document'">Vue générale</button>
-          <button type="button" class="settings-button" (click)="settingsOpen = true" [class.active]="settingsOpen" aria-haspopup="dialog">⚙ Paramètres</button>
+          <button type="button" class="settings-button" (click)="settingsOpen = true" [class.active]="settingsOpen" [attr.aria-expanded]="settingsOpen" aria-haspopup="dialog">⚙ Paramètres</button>
         </div>
       </header>
 
@@ -69,21 +69,42 @@ const categoryLabels: Record<NodeCategory, string> = {
 
       <div class="settings-backdrop" *ngIf="settingsOpen" (click)="settingsOpen = false"></div>
       <aside class="settings-panel" [class.open]="settingsOpen" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-        <button class="settings-close" type="button" (click)="settingsOpen = false" aria-label="Fermer les paramètres">×</button>
-        <span class="settings-eyebrow">PRÉFÉRENCES D’AFFICHAGE</span>
-        <h2 id="settings-title">Paramètres</h2>
-        <section>
-          <h3>Carte à points</h3>
-          <p>Choisissez quand les noms apparaissent autour des points.</p>
-          <div class="setting-options" role="radiogroup" aria-label="Affichage des noms">
-            <button type="button" role="radio" [attr.aria-checked]="mindMapLabelMode === 'nearby'" [class.selected]="mindMapLabelMode === 'nearby'" (click)="setMindMapLabelMode('nearby')">
-              <span>Selon la proximité</span><small>Les noms apparaissent lorsque vous vous rapprochez.</small>
-            </button>
-            <button type="button" role="radio" [attr.aria-checked]="mindMapLabelMode === 'always'" [class.selected]="mindMapLabelMode === 'always'" (click)="setMindMapLabelMode('always')">
-              <span>Toujours visibles</span><small>Les noms restent affichés quelle que soit la distance.</small>
-            </button>
+        <header class="settings-header">
+          <div><span class="settings-eyebrow">PRÉFÉRENCES</span><h2 id="settings-title">Paramètres</h2></div>
+          <button class="settings-close" type="button" (click)="settingsOpen = false" aria-label="Fermer les paramètres">×</button>
+        </header>
+        <div class="settings-layout">
+          <nav class="settings-menu" aria-label="Rubriques des paramètres">
+            <button type="button" (click)="settingsSection = 'display'" [class.active]="settingsSection === 'display'"><span>◉</span><strong>Affichage</strong><small>Carte et libellés</small></button>
+            <button type="button" (click)="settingsSection = 'navigation'" [class.active]="settingsSection === 'navigation'"><span>◇</span><strong>Navigation</strong><small>Vue au démarrage</small></button>
+            <button type="button" class="reset-settings" (click)="resetSettings()"><span>↺</span><strong>Réinitialiser</strong><small>Valeurs par défaut</small></button>
+          </nav>
+          <div class="settings-content">
+            <section *ngIf="settingsSection === 'display'">
+              <span class="settings-section-number">01 / AFFICHAGE</span>
+              <h3>Carte à points</h3>
+              <p>Choisissez quand les noms apparaissent autour des points.</p>
+              <div class="setting-options" role="radiogroup" aria-label="Affichage des noms">
+                <button type="button" role="radio" [attr.aria-checked]="mindMapLabelMode === 'nearby'" [class.selected]="mindMapLabelMode === 'nearby'" (click)="setMindMapLabelMode('nearby')">
+                  <span>Selon la proximité</span><small>Les noms apparaissent lorsque vous vous rapprochez.</small>
+                </button>
+                <button type="button" role="radio" [attr.aria-checked]="mindMapLabelMode === 'always'" [class.selected]="mindMapLabelMode === 'always'" (click)="setMindMapLabelMode('always')">
+                  <span>Toujours visibles</span><small>Les noms restent affichés quelle que soit la distance.</small>
+                </button>
+              </div>
+            </section>
+            <section *ngIf="settingsSection === 'navigation'">
+              <span class="settings-section-number">02 / NAVIGATION</span>
+              <h3>Vue au démarrage</h3>
+              <p>Cette vue sera ouverte automatiquement lors de votre prochaine visite.</p>
+              <div class="setting-options" role="radiogroup" aria-label="Vue au démarrage">
+                <button type="button" role="radio" [attr.aria-checked]="defaultViewMode === 'mind'" [class.selected]="defaultViewMode === 'mind'" (click)="setDefaultViewMode('mind')"><span>Carte mentale</span><small>Réseau de points en trois dimensions.</small></button>
+                <button type="button" role="radio" [attr.aria-checked]="defaultViewMode === 'board'" [class.selected]="defaultViewMode === 'board'" (click)="setDefaultViewMode('board')"><span>Tableau 3D</span><small>Fiches épinglées sur le tableau.</small></button>
+                <button type="button" role="radio" [attr.aria-checked]="defaultViewMode === 'document'" [class.selected]="defaultViewMode === 'document'" (click)="setDefaultViewMode('document')"><span>Fiches</span><small>Lecture documentaire en grille.</small></button>
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
       </aside>
 
       <aside class="detail-panel" [class.open]="selectedNode || selectedEdge" aria-live="polite">
@@ -110,6 +131,16 @@ const categoryLabels: Record<NodeCategory, string> = {
           <ol class="sources"><li *ngFor="let source of edge.sources"><a [attr.href]="source.url || null" [attr.target]="source.url ? '_blank' : null" [attr.rel]="source.url ? 'noopener noreferrer' : null">{{ source.title }}</a><span>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</span><em *ngIf="source.note">{{ source.note }}</em></li></ol>
         </ng-container>
       </aside>
+
+      <footer class="site-footer">
+        <div class="site-footer-inner">
+          <p class="project-credit"><strong>AFFICHE TONFA</strong><span>·</span><span>un projet</span><img src="assets/logo-transfem-era.png" alt="Transfem Era"></p>
+          <nav aria-label="Liens de pied de page">
+            <a href="https://github.com/IceliosPY/AfficheTonFa" target="_blank" rel="noreferrer">Code source</a>
+            <a href="#top">Haut de page ↑</a>
+          </nav>
+        </div>
+      </footer>
     </div>
   `,
   styleUrl: './app.component.scss',
@@ -127,16 +158,23 @@ export class AppComponent implements OnInit {
   filters: BoardFilters = {};
   viewMode: 'mind' | 'board' | 'document' = 'mind';
   settingsOpen = false;
+  settingsSection: 'display' | 'navigation' = 'display';
   mindMapLabelMode: 'nearby' | 'always' = 'nearby';
+  defaultViewMode: 'mind' | 'board' | 'document' = 'mind';
 
   constructor(private readonly changeDetector: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     try {
       if (localStorage.getItem('atf.mindMapLabelMode') === 'always') this.mindMapLabelMode = 'always';
+      const storedView = localStorage.getItem('atf.defaultViewMode');
+      if (storedView === 'mind' || storedView === 'board' || storedView === 'document') this.defaultViewMode = this.viewMode = storedView;
     } catch { /* Le stockage peut être désactivé par le navigateur. */ }
     void this.loadGraph();
   }
+
+  @HostListener('document:keydown.escape')
+  closeSettingsWithEscape(): void { this.settingsOpen = false; }
 
   get searchResults(): GraphNode[] {
     const value = this.query.trim().toLocaleLowerCase('fr');
@@ -157,6 +195,14 @@ export class AppComponent implements OnInit {
   setMindMapLabelMode(mode: 'nearby' | 'always'): void {
     this.mindMapLabelMode = mode;
     try { localStorage.setItem('atf.mindMapLabelMode', mode); } catch { /* Le réglage reste actif pour la session. */ }
+  }
+  setDefaultViewMode(mode: 'mind' | 'board' | 'document'): void {
+    this.defaultViewMode = mode;
+    try { localStorage.setItem('atf.defaultViewMode', mode); } catch { /* Le réglage reste actif pour la session. */ }
+  }
+  resetSettings(): void {
+    this.mindMapLabelMode = 'nearby'; this.defaultViewMode = 'mind';
+    try { localStorage.removeItem('atf.mindMapLabelMode'); localStorage.removeItem('atf.defaultViewMode'); } catch { /* Le stockage peut être désactivé. */ }
   }
   toggleCategory(category: NodeCategory): void {
     this.activeCategories.has(category) ? this.activeCategories.delete(category) : this.activeCategories.add(category);
