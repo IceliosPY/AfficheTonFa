@@ -4,7 +4,7 @@
   "title": "Tableau principal",
   "description": "Carte personnelle enrichie progressivement, fiche par fiche.",
   "notice": "Les fiches et leurs relations reflètent le travail éditorial personnel de cette page.",
-  "updatedAt": "2026-11-04",
+  "updatedAt": "2026-11-05",
   "visual": {
     "backgroundColor": "#101211",
     "boardColor": "#4e3829",
@@ -125,8 +125,8 @@
       "label": "Alain Soral",
       "category": "person",
       "imageUrl": "assets/nodes/alain-soral.webp",
-      "summary": "Personne reliée au Rassemblement national par une information éditoriale personnelle.",
-      "description": "Cette fiche personnelle représente le lien éditorial indiqué entre Alain Soral et le Rassemblement national.",
+      "summary": "Personne reliée au Rassemblement national et à Dieudonné par des informations éditoriales personnelles.",
+      "description": "Cette fiche personnelle représente les liens éditoriaux indiqués entre Alain Soral, le Rassemblement national et Dieudonné. La nature du lien avec Dieudonné n’est pas précisée.",
       "status": "Information éditoriale personnelle",
       "tags": [
         "relation éditoriale",
@@ -145,6 +145,45 @@
           "publishedAt": "Non daté",
           "accessedAt": "2026-11-04",
           "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
+        },
+        {
+          "id": "src-dieudonne-alain-soral-reference-utilisateur",
+          "title": "Lien entre Dieudonné et Alain Soral",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien retenu par la ligne éditoriale de cette page personnelle ; sa nature n’est pas précisée."
+        }
+      ]
+    },
+    {
+      "id": "person-dieudonne",
+      "label": "Dieudonné",
+      "category": "person",
+      "imageUrl": "assets/nodes/dieudonne.webp",
+      "summary": "Personne reliée à Alain Soral par une information éditoriale personnelle.",
+      "description": "Cette fiche personnelle représente le lien éditorial indiqué entre Dieudonné et Alain Soral. La nature de cette relation n’est pas précisée.",
+      "aliases": [
+        "Dieudonné M’bala M’bala"
+      ],
+      "status": "Information éditoriale personnelle",
+      "tags": [
+        "relation éditoriale",
+        "personne"
+      ],
+      "position": {
+        "x": -5.2,
+        "y": -1.6,
+        "rotation": -0.01
+      },
+      "sources": [
+        {
+          "id": "src-dieudonne-alain-soral-reference-utilisateur",
+          "title": "Lien entre Dieudonné et Alain Soral",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien retenu par la ligne éditoriale de cette page personnelle ; sa nature n’est pas précisée."
         }
       ]
     },
@@ -375,6 +414,27 @@
           "publishedAt": "Non daté",
           "accessedAt": "2026-11-04",
           "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
+        }
+      ],
+      "color": "#f02f7d"
+    },
+    {
+      "id": "rel-dieudonne-alain-soral",
+      "source": "person-dieudonne",
+      "target": "person-alain-soral",
+      "type": "documentary",
+      "label": "Lien mentionné",
+      "description": "Cette page personnelle présente un lien éditorial entre Dieudonné et Alain Soral. La nature de cette relation n’est pas précisée.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-05",
+      "sources": [
+        {
+          "id": "src-dieudonne-alain-soral-reference-utilisateur",
+          "title": "Lien entre Dieudonné et Alain Soral",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien retenu par la ligne éditoriale de cette page personnelle ; sa nature n’est pas précisée."
         }
       ],
       "color": "#f02f7d"
