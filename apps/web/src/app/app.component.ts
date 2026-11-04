@@ -108,28 +108,57 @@ const categoryLabels: Record<NodeCategory, string> = {
       </aside>
 
       <aside class="detail-panel" [class.open]="selectedNode || selectedEdge" aria-live="polite">
-        <button class="close" type="button" (click)="closeDetails()" aria-label="Fermer le panneau">×</button>
+        <div class="detail-toolbar"><span>{{ selectedEdge ? 'RELATION DOCUMENTAIRE' : 'FICHE DOCUMENTAIRE' }}</span><button class="close" type="button" (click)="closeDetails()" aria-label="Fermer le panneau">×</button></div>
+        <div class="detail-content">
         <ng-container *ngIf="selectedNode as node">
-          <span class="detail-type" [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span>
-          <h2>{{ node.label }}</h2><p class="lead">{{ node.summary }}</p>
-          <div class="rule"></div><h3>NOTE DOCUMENTAIRE</h3><p>{{ node.description }}</p>
-          <dl>
-            <ng-container *ngIf="node.period"><dt>Période</dt><dd>{{ node.period.label || ((node.period.from || '?') + ' — ' + (node.period.to || 'présent')) }}</dd></ng-container>
-            <ng-container *ngIf="node.location"><dt>Zone</dt><dd>{{ node.location }}</dd></ng-container>
-            <ng-container *ngIf="node.status"><dt>Statut</dt><dd>{{ node.status }}</dd></ng-container>
+          <header class="detail-hero">
+            <span class="detail-type" [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span>
+            <h2>{{ node.label }}</h2><p class="lead">{{ node.summary }}</p>
+          </header>
+          <section class="detail-section">
+            <div class="section-heading"><h3>Note documentaire</h3><span>Synthèse</span></div>
+            <p>{{ node.description }}</p>
+          </section>
+          <dl class="metadata-grid" *ngIf="node.period || node.location || node.status">
+            <ng-container *ngIf="node.period"><div><dt>Période</dt><dd>{{ node.period.label || ((node.period.from || '?') + ' — ' + (node.period.to || 'présent')) }}</dd></div></ng-container>
+            <ng-container *ngIf="node.location"><div><dt>Zone</dt><dd>{{ node.location }}</dd></div></ng-container>
+            <ng-container *ngIf="node.status"><div class="wide"><dt>Statut</dt><dd><span class="status-pill">{{ node.status }}</span></dd></div></ng-container>
           </dl>
-          <h3>SOURCES ({{ node.sources.length }})</h3>
-          <ol class="sources"><li *ngFor="let source of node.sources"><a [attr.href]="source.url || null" [attr.target]="source.url ? '_blank' : null" [attr.rel]="source.url ? 'noopener noreferrer' : null">{{ source.title }}</a><span>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</span><em *ngIf="source.note">{{ source.note }}</em></li></ol>
-          <h3>RELATIONS DIRECTES</h3>
-          <button class="relation" *ngFor="let edge of relatedEdges(node.id)" type="button" (click)="selectEdge(edge)">{{ edge.label }}<span>→</span></button>
+          <section class="detail-section" *ngIf="node.sources.length">
+            <div class="section-heading"><h3>Sources</h3><span>{{ node.sources.length }} référence{{ node.sources.length > 1 ? 's' : '' }}</span></div>
+            <div class="sources source-list">
+              <details class="source-card" *ngFor="let source of node.sources; let i = index">
+                <summary><span class="source-index">{{ i + 1 }}</span><span class="source-summary"><strong>{{ source.title }}</strong><small>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</small></span><span class="source-chevron">⌄</span></summary>
+                <div class="source-body"><em *ngIf="source.note">{{ source.note }}</em><a *ngIf="source.url" [href]="source.url" target="_blank" rel="noopener noreferrer">Consulter la source ↗</a></div>
+              </details>
+            </div>
+          </section>
+          <section class="detail-section" *ngIf="relatedEdges(node.id).length">
+            <div class="section-heading"><h3>Relations directes</h3><span>{{ relatedEdges(node.id).length }}</span></div>
+            <button class="relation" *ngFor="let edge of relatedEdges(node.id)" type="button" (click)="selectEdge(edge)"><span><small>{{ relatedNodeLabel(edge, node.id) }}</small><strong>{{ edge.label }}</strong></span><b>→</b></button>
+          </section>
         </ng-container>
         <ng-container *ngIf="selectedEdge as edge">
-          <span class="detail-type relation-tag">RELATION · {{ edge.type }}</span><h2>{{ edge.label }}</h2><p class="lead">{{ edge.description }}</p>
-          <div class="rule"></div>
-          <dl><dt>Source</dt><dd>{{ nodeLabel(edge.source) }}</dd><dt>Cible</dt><dd>{{ nodeLabel(edge.target) }}</dd><dt>Statut documentaire</dt><dd>{{ documentaryStatusLabel(edge.documentaryStatus) }}</dd><dt>Dernière vérification</dt><dd>{{ displayDate(edge.lastVerifiedAt) }}</dd></dl>
-          <h3>SOURCES ({{ edge.sources.length }})</h3>
-          <ol class="sources"><li *ngFor="let source of edge.sources"><a [attr.href]="source.url || null" [attr.target]="source.url ? '_blank' : null" [attr.rel]="source.url ? 'noopener noreferrer' : null">{{ source.title }}</a><span>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</span><em *ngIf="source.note">{{ source.note }}</em></li></ol>
+          <header class="detail-hero">
+            <span class="detail-type relation-tag">RELATION · {{ edge.type }}</span><h2>{{ edge.label }}</h2><p class="lead">{{ edge.description }}</p>
+          </header>
+          <div class="relation-route"><span>{{ nodeLabel(edge.source) }}</span><i>→</i><span>{{ nodeLabel(edge.target) }}</span></div>
+          <dl class="metadata-grid">
+            <div><dt>Statut documentaire</dt><dd><span class="status-pill" [class.established]="edge.documentaryStatus === 'established'">{{ documentaryStatusLabel(edge.documentaryStatus) }}</span></dd></div>
+            <div><dt>Dernière vérification</dt><dd>{{ displayDate(edge.lastVerifiedAt) }}</dd></div>
+            <div class="wide" *ngIf="edge.period"><dt>Période</dt><dd>{{ edge.period.label || ((edge.period.from || '?') + ' — ' + (edge.period.to || 'présent')) }}</dd></div>
+          </dl>
+          <section class="detail-section" *ngIf="edge.sources.length">
+            <div class="section-heading"><h3>Sources</h3><span>{{ edge.sources.length }} référence{{ edge.sources.length > 1 ? 's' : '' }}</span></div>
+            <div class="sources source-list">
+              <details class="source-card" *ngFor="let source of edge.sources; let i = index">
+                <summary><span class="source-index">{{ i + 1 }}</span><span class="source-summary"><strong>{{ source.title }}</strong><small>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</small></span><span class="source-chevron">⌄</span></summary>
+                <div class="source-body"><em *ngIf="source.note">{{ source.note }}</em><a *ngIf="source.url" [href]="source.url" target="_blank" rel="noopener noreferrer">Consulter la source ↗</a></div>
+              </details>
+            </div>
+          </section>
         </ng-container>
+        </div>
       </aside>
 
       <footer class="site-footer">
@@ -174,7 +203,7 @@ export class AppComponent implements OnInit {
   }
 
   @HostListener('document:keydown.escape')
-  closeSettingsWithEscape(): void { this.settingsOpen = false; }
+  closeSettingsWithEscape(): void { if (this.settingsOpen) this.settingsOpen = false; else if (this.selectedNode || this.selectedEdge) this.closeDetails(); }
 
   get searchResults(): GraphNode[] {
     const value = this.query.trim().toLocaleLowerCase('fr');
@@ -213,6 +242,7 @@ export class AppComponent implements OnInit {
   count(category: NodeCategory): number { return this.graph?.nodes.filter((node) => node.category === category).length ?? 0; }
   nodeLabel(id: string): string { return this.graph?.nodes.find((node) => node.id === id)?.label ?? id; }
   relatedEdges(id: string): GraphEdge[] { return this.graph?.edges.filter((edge) => edge.source === id || edge.target === id) ?? []; }
+  relatedNodeLabel(edge: GraphEdge, nodeId: string): string { return this.nodeLabel(edge.source === nodeId ? edge.target : edge.source); }
   displayDate(value: string): string {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
