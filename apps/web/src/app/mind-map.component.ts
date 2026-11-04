@@ -1,13 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { calculateMindMapLayout } from '@affichetonfa/board-core';
-import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph } from '@affichetonfa/shared-types';
+import type { BoardFilters, GraphEdge, GraphNode, InvestigationGraph, NodeCategory } from '@affichetonfa/shared-types';
 import {
   AdditiveBlending, Box3, BufferGeometry, CanvasTexture, Color, Float32BufferAttribute, FogExp2,
   LineBasicMaterial, LineSegments, PerspectiveCamera, Points, PointsMaterial, Raycaster, Scene,
   Sphere, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const categoryColors: Record<NodeCategory, string> = {
+  organization: '#d7675e', person: '#62a8ad', case: '#d0a254', event: '#9582ba', document: '#96a36a',
+};
+const categoryTextColors: Record<NodeCategory, string> = {
+  organization: '#f2a39d', person: '#a9dadd', case: '#f1cf91', event: '#c6b6e4', document: '#c4ce9f',
+};
 
 @Component({
   selector: 'atf-mind-map',
@@ -137,7 +144,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     this.nodeIds = visibleNodes.map((node) => node.id);
     const pointPositions = this.nodeIds.flatMap((id) => this.nodePositions.get(id)?.toArray() ?? [0, 0, 0]);
-    const pointColors = this.nodeIds.flatMap((id) => new Color(id === this.selectedNodeId ? '#ffd2e6' : '#ff3d8d').toArray());
+    const pointColors = visibleNodes.flatMap((node) => new Color(node.id === this.selectedNodeId ? '#efffff' : categoryColors[node.category]).toArray());
     const pointGeometry = new BufferGeometry(); pointGeometry.setAttribute('position', new Float32BufferAttribute(pointPositions, 3)); pointGeometry.setAttribute('color', new Float32BufferAttribute(pointColors, 3));
     const pointMaterial = new PointsMaterial({ size: 24, sizeAttenuation: false, map: this.pointTexture, alphaTest: .08, transparent: true, vertexColors: true, blending: AdditiveBlending, depthWrite: false });
     this.pointCloud = new Points(pointGeometry, pointMaterial); this.scene.add(this.pointCloud);
@@ -198,8 +205,8 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     for (const { id, position } of projected) {
       let element = this.zoomLabelElements.get(id);
       if (!element) {
-        element = document.createElement('span'); element.textContent = this.graph?.nodes.find((node) => node.id === id)?.label ?? id;
-        Object.assign(element.style, { position: 'absolute', left: '0', top: '0', color: '#ffe1ed', font: '600 12px ui-sans-serif,system-ui,sans-serif', textShadow: '0 1px 5px #160b29, 0 0 9px #160b29', whiteSpace: 'nowrap', willChange: 'transform' });
+        const node = this.graph?.nodes.find((item) => item.id === id); element = document.createElement('span'); element.textContent = node?.label ?? id;
+        Object.assign(element.style, { position: 'absolute', left: '0', top: '0', color: node ? categoryTextColors[node.category] : '#ffe1ed', font: '600 12px ui-sans-serif,system-ui,sans-serif', textShadow: '0 1px 5px #160b29, 0 0 9px #160b29', whiteSpace: 'nowrap', willChange: 'transform' });
         this.zoomLabels.nativeElement.append(element); element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' }); this.zoomLabelElements.set(id, element);
       }
       const x = (position.x + 1) * .5 * width; const y = (1 - position.y) * .5 * height;
@@ -220,7 +227,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     const hit = this.pick(event, this.pointCloud); const id = hit?.index === undefined ? undefined : this.nodeIds[hit.index]; const node = this.graph?.nodes.find((item) => item.id === id);
     if (!node) { this.hideLabel(); this.canvas.nativeElement.style.cursor = 'grab'; return; }
     const bounds = this.host.nativeElement.getBoundingClientRect(); const label = this.label.nativeElement;
-    label.textContent = node.label; label.style.left = `${event.clientX - bounds.left}px`; label.style.top = `${event.clientY - bounds.top}px`; label.style.display = 'block'; this.canvas.nativeElement.style.cursor = 'pointer';
+    label.textContent = node.label; label.style.color = categoryTextColors[node.category]; label.style.borderColor = `${categoryColors[node.category]}66`; label.style.left = `${event.clientX - bounds.left}px`; label.style.top = `${event.clientY - bounds.top}px`; label.style.display = 'block'; this.canvas.nativeElement.style.cursor = 'pointer';
   };
   private readonly onPointerLeave = (): void => { this.hideLabel(); };
   private readonly onClick = (event: PointerEvent): void => {
@@ -248,7 +255,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private hash(value: string): number { let result = 2166136261; for (const character of value) { result ^= character.charCodeAt(0); result = Math.imul(result, 16777619); } return result >>> 0; }
   private createPointTexture(): CanvasTexture {
     const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64; const context = canvas.getContext('2d');
-    if (context) { const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32); gradient.addColorStop(0, '#fff'); gradient.addColorStop(.22, '#fff'); gradient.addColorStop(.48, '#ff4a94cc'); gradient.addColorStop(1, '#ff3d8d00'); context.fillStyle = gradient; context.fillRect(0, 0, 64, 64); }
+    if (context) { const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32); gradient.addColorStop(0, '#fff'); gradient.addColorStop(.22, '#fff'); gradient.addColorStop(.48, '#ffffffcc'); gradient.addColorStop(1, '#ffffff00'); context.fillStyle = gradient; context.fillRect(0, 0, 64, 64); }
     return new CanvasTexture(canvas);
   }
 }
