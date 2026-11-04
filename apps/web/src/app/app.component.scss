@@ -257,7 +257,9 @@
 .detail-panel dd { margin: 0; font-weight: 600; }
 .sources { padding-left: 20px; }
 .sources li { padding: 0 0 13px 5px; font: 12px/1.4 system-ui, sans-serif; }
-.sources strong, .sources span, .sources em { display: block; }
+.sources a, .sources span, .sources em { display: block; }
+.sources a { color: inherit; font-weight: 700; text-decoration-color: #a13b3573; text-underline-offset: 2px; }
+.sources a[href]:hover { color: #8b302b; text-decoration-color: currentColor; }
 .sources span { color: #766e62; margin-top: 3px; }
 .sources em { color: #7d3e38; margin-top: 4px; }
 .relation { width: 100%; display: flex; justify-content: space-between; border: 0; border-top: 1px solid #c6bdad; background: transparent; padding: 11px 2px; color: #36312c; text-align: left; font: 600 12px system-ui, sans-serif; cursor: pointer; }

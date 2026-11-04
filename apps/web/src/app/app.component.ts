@@ -98,7 +98,7 @@ const categoryLabels: Record<NodeCategory, string> = {
             <ng-container *ngIf="node.status"><dt>Statut</dt><dd>{{ node.status }}</dd></ng-container>
           </dl>
           <h3>SOURCES ({{ node.sources.length }})</h3>
-          <ol class="sources"><li *ngFor="let source of node.sources"><strong>{{ source.title }}</strong><span>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</span><em *ngIf="source.note">{{ source.note }}</em></li></ol>
+          <ol class="sources"><li *ngFor="let source of node.sources"><a [attr.href]="source.url || null" [attr.target]="source.url ? '_blank' : null" [attr.rel]="source.url ? 'noopener noreferrer' : null">{{ source.title }}</a><span>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</span><em *ngIf="source.note">{{ source.note }}</em></li></ol>
           <h3>RELATIONS DIRECTES</h3>
           <button class="relation" *ngFor="let edge of relatedEdges(node.id)" type="button" (click)="selectEdge(edge)">{{ edge.label }}<span>→</span></button>
         </ng-container>
@@ -107,7 +107,7 @@ const categoryLabels: Record<NodeCategory, string> = {
           <div class="rule"></div>
           <dl><dt>Source</dt><dd>{{ nodeLabel(edge.source) }}</dd><dt>Cible</dt><dd>{{ nodeLabel(edge.target) }}</dd><dt>Statut documentaire</dt><dd>{{ documentaryStatusLabel(edge.documentaryStatus) }}</dd><dt>Dernière vérification</dt><dd>{{ displayDate(edge.lastVerifiedAt) }}</dd></dl>
           <h3>SOURCES ({{ edge.sources.length }})</h3>
-          <ol class="sources"><li *ngFor="let source of edge.sources"><strong>{{ source.title }}</strong><span>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</span><em *ngIf="source.note">{{ source.note }}</em></li></ol>
+          <ol class="sources"><li *ngFor="let source of edge.sources"><a [attr.href]="source.url || null" [attr.target]="source.url ? '_blank' : null" [attr.rel]="source.url ? 'noopener noreferrer' : null">{{ source.title }}</a><span>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</span><em *ngIf="source.note">{{ source.note }}</em></li></ol>
         </ng-container>
       </aside>
     </div>
