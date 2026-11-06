@@ -346,6 +346,86 @@
           "note": "Relation indiquée par le propriétaire de cette page personnelle."
         }
       ]
+    },
+    {
+      "id": "person-kroc-blanc",
+      "label": "Kroc Blanc",
+      "category": "person",
+      "imageUrl": "assets/nodes/kroc-blanc.webp",
+      "summary": "Personne reliée à Amalek et MC Amor.",
+      "description": "Kroc Blanc est relié à Amalek et MC Amor sur cette page personnelle.",
+      "status": "Information éditoriale personnelle",
+      "position": {
+        "x": 5.2,
+        "y": 4.4,
+        "rotation": -0.01
+      },
+      "sources": [
+        {
+          "id": "src-kroc-blanc-amalek-editorial",
+          "title": "Lien entre Kroc Blanc et Amalek",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien indiqué par le propriétaire de cette page personnelle."
+        },
+        {
+          "id": "src-kroc-blanc-mc-amor-editorial",
+          "title": "Lien entre Kroc Blanc et MC Amor",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien indiqué par le propriétaire de cette page personnelle."
+        }
+      ]
+    },
+    {
+      "id": "person-amalek",
+      "label": "Amalek",
+      "category": "person",
+      "imageUrl": "assets/nodes/amalek.webp",
+      "summary": "Personne reliée à Kroc Blanc.",
+      "description": "Amalek est relié à Kroc Blanc sur cette page personnelle.",
+      "status": "Information éditoriale personnelle",
+      "position": {
+        "x": 6.2,
+        "y": 2.6,
+        "rotation": 0.01
+      },
+      "sources": [
+        {
+          "id": "src-kroc-blanc-amalek-editorial",
+          "title": "Lien entre Kroc Blanc et Amalek",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien indiqué par le propriétaire de cette page personnelle."
+        }
+      ]
+    },
+    {
+      "id": "person-mc-amor",
+      "label": "MC Amor",
+      "category": "person",
+      "imageUrl": "assets/nodes/mc-amor.webp",
+      "summary": "Personne reliée à Kroc Blanc.",
+      "description": "MC Amor est relié à Kroc Blanc sur cette page personnelle.",
+      "status": "Information éditoriale personnelle",
+      "position": {
+        "x": 6.3,
+        "y": 5.5,
+        "rotation": -0.012
+      },
+      "sources": [
+        {
+          "id": "src-kroc-blanc-mc-amor-editorial",
+          "title": "Lien entre Kroc Blanc et MC Amor",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien indiqué par le propriétaire de cette page personnelle."
+        }
+      ]
     }
   ],
   "edges": [
@@ -540,6 +620,48 @@
           "publishedAt": "Non daté",
           "accessedAt": "2026-11-05",
           "note": "Relation indiquée par le propriétaire de cette page personnelle."
+        }
+      ],
+      "color": "#f02f7d"
+    },
+    {
+      "id": "rel-kroc-blanc-amalek",
+      "source": "person-kroc-blanc",
+      "target": "person-amalek",
+      "type": "documentary",
+      "label": "Lien mentionné",
+      "description": "Cette page personnelle présente un lien entre Kroc Blanc et Amalek.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-05",
+      "sources": [
+        {
+          "id": "src-kroc-blanc-amalek-editorial",
+          "title": "Lien entre Kroc Blanc et Amalek",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien indiqué par le propriétaire de cette page personnelle."
+        }
+      ],
+      "color": "#f02f7d"
+    },
+    {
+      "id": "rel-kroc-blanc-mc-amor",
+      "source": "person-kroc-blanc",
+      "target": "person-mc-amor",
+      "type": "documentary",
+      "label": "Lien mentionné",
+      "description": "Cette page personnelle présente un lien entre Kroc Blanc et MC Amor.",
+      "documentaryStatus": "alleged",
+      "lastVerifiedAt": "2026-11-05",
+      "sources": [
+        {
+          "id": "src-kroc-blanc-mc-amor-editorial",
+          "title": "Lien entre Kroc Blanc et MC Amor",
+          "publisher": "Information éditoriale personnelle",
+          "publishedAt": "Non daté",
+          "accessedAt": "2026-11-05",
+          "note": "Lien indiqué par le propriétaire de cette page personnelle."
         }
       ],
       "color": "#f02f7d"
