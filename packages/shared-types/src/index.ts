@@ -10,12 +10,12 @@ export interface GraphNode {
   id: string; label: string; category: NodeCategory; summary: string; description: string;
   aliases?: string[]; period?: { from?: string; to?: string; label?: string }; location?: string;
   status?: string; imageUrl?: string; tags?: string[]; position?: BoardPosition;
-  sources: SourceReference[]; informationSections?: NodeInformationSection[]; metadata?: Record<string, string | number | boolean | null>;
+  sources?: SourceReference[]; informationSections?: NodeInformationSection[]; metadata?: Record<string, string | number | boolean | null>;
 }
 export interface GraphEdge {
   id: string; source: string; target: string; type: RelationType; label: string; description: string;
-  period?: { from?: string; to?: string; label?: string }; documentaryStatus: DocumentaryStatus;
-  lastVerifiedAt: string; sources: SourceReference[]; color?: string;
+  period?: { from?: string; to?: string; label?: string }; documentaryStatus?: DocumentaryStatus;
+  lastVerifiedAt?: string; sources?: SourceReference[]; color?: string;
 }
 export interface GraphVisualConfig { backgroundColor?: string; boardColor?: string; accentColor?: string; cameraDistance?: number; }
 export interface InvestigationGraph {

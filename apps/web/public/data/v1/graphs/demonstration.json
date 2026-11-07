@@ -4,7 +4,7 @@
   "title": "Tableau principal",
   "description": "Carte personnelle enrichie progressivement, fiche par fiche.",
   "notice": "Les fiches et leurs relations reflètent le travail éditorial personnel de cette page.",
-  "updatedAt": "2026-11-05",
+  "updatedAt": "2026-11-07",
   "visual": {
     "backgroundColor": "#101211",
     "boardColor": "#4e3829",
@@ -17,107 +17,38 @@
       "label": "Papacito",
       "category": "person",
       "imageUrl": "assets/nodes/papacito.webp",
-      "summary": "Vidéaste et auteur français ; fiche de test reliée à Code Rheno autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
-      "description": "Papacito est le pseudonyme public d’un vidéaste et auteur français. Des médias nationaux, dont Le Monde et franceinfo, le présentent comme une figure de la vidéosphère d’extrême droite. Cette qualification est attribuée aux sources citées ; elle ne constitue ni une relation avec une organisation, ni une implication dans des faits violents.",
-      "status": "Personnalité publique — fiche documentaire initiale",
-      "tags": [
-        "vidéaste",
-        "auteur",
-        "extrême droite — qualification médiatique"
-      ],
+      "summary": "A travaillé avec Code Rheno autour de la vidéo « Le gauchiste est-il pare-balle ? ». A écrit « Menace sur les gauchistes » avec Julien Rochedy.",
+      "description": "A travaillé avec Code Rheno autour de la vidéo « Le gauchiste est-il pare-balle ? ». A écrit « Menace sur les gauchistes » avec Julien Rochedy.",
       "position": {
         "x": -2.35,
         "y": 0,
         "rotation": -0.025
-      },
-      "sources": [
-        {
-          "id": "src-lemonde-papacito-2021",
-          "title": "Le youtubeur d’extrême droite Papacito visé par une enquête après une vidéo de simulation de meurtre d’un électeur de gauche",
-          "publisher": "Le Monde",
-          "publishedAt": "2021-06-09",
-          "url": "https://www.lemonde.fr/politique/article/2021/06/09/le-youtubeur-d-extreme-droite-papacito-vise-par-une-enquete-apres-une-video-de-simulation-de-meurtre-d-un-electeur-de-gauche_6083458_823448.html",
-          "accessedAt": "2026-11-03",
-          "note": "Source secondaire ; la qualification politique est attribuée au média."
-        },
-        {
-          "id": "src-franceinfo-papacito-2021",
-          "title": "Une enquête ouverte après une vidéo du youtubeur d’extrême droite Papacito simulant le meurtre d’un électeur de gauche",
-          "publisher": "franceinfo",
-          "publishedAt": "2021-06-09",
-          "accessedAt": "2026-11-03",
-          "note": "Source secondaire identifiable par son titre, son éditeur et sa date."
-        }
-      ]
+      }
     },
     {
       "id": "person-code-rheno",
       "label": "Code Rheno",
       "category": "person",
       "imageUrl": "assets/nodes/code-reinho.webp",
-      "summary": "Personne reliée à Papacito autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
-      "description": "Cette fiche personnelle représente la relation éditoriale indiquée avec Papacito autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
-      "status": "Information éditoriale personnelle",
-      "tags": [
-        "relation éditoriale",
-        "référence vidéo"
-      ],
+      "summary": "A travaillé avec Papacito autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
+      "description": "A travaillé avec Papacito autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
       "position": {
         "x": 2.35,
         "y": 0,
         "rotation": 0.02
-      },
-      "sources": [
-        {
-          "id": "src-video-gauchiste-pare-balle",
-          "title": "Le gauchiste est-il pare-balle ?",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-03",
-          "note": "Titre renseigné pour présenter la relation entre Papacito et Code Rheno."
-        }
-      ]
+      }
     },
     {
       "id": "person-julien-rochedy",
       "label": "Julien Rochedy",
       "category": "person",
       "imageUrl": "assets/nodes/julien-rochedy.webp",
-      "summary": "Ancien directeur national du Front national de la jeunesse selon son témoignage vidéo, également relié à Papacito par la mention de l’ouvrage « Menace sur les gauchistes ».",
-      "description": "Dans son témoignage vidéo, Julien Rochedy dit avoir pris sa carte au Front national en septembre 2006, avoir été directeur national du FNJ en septembre 2012, avoir quitté le FNJ à l’été 2014 puis le parti vers novembre 2014. La page reprend également l’attribution de l’ouvrage « Menace sur les gauchistes » à Papacito et Julien Rochedy.",
-      "status": "Parcours présenté à partir d’un témoignage direct",
-      "tags": [
-        "témoignage direct",
-        "attribution d’ouvrage"
-      ],
+      "summary": "A écrit « Menace sur les gauchistes » avec Papacito. A dirigé le Front national de la jeunesse. A été ami avec Loik le Priol avant une séparation pour des conflits de ligne.",
+      "description": "A écrit « Menace sur les gauchistes » avec Papacito. A dirigé le Front national de la jeunesse. A été ami avec Loik le Priol avant une séparation pour des conflits de ligne.",
       "position": {
         "x": 0,
         "y": 2.8,
         "rotation": -0.01
-      },
-      "sources": [
-        {
-          "id": "src-menace-sur-les-gauchistes-reference-utilisateur",
-          "title": "Menace sur les gauchistes",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Titre et attribution retenus par la ligne éditoriale de cette page personnelle."
-        },
-        {
-          "id": "src-video-julien-rochedy-rassemblement-national",
-          "title": "Témoignage vidéo de Julien Rochedy sur son parcours au Front national",
-          "publisher": "Julien Rochedy — YouTube",
-          "publishedAt": "Date non renseignée",
-          "url": "https://youtu.be/9md5AXZbUow",
-          "accessedAt": "2026-11-04",
-          "note": "Transcription fournie par le propriétaire de la page. Passages retenus : prise de carte en septembre 2006 (6:44–6:52), directeur national du FNJ en septembre 2012 (52:27–52:43), fin du FNJ à l’été 2014 (1:31:10–1:31:32) et départ du Front national vers novembre 2014 (1:36:37–1:37:03)."
-        }
-      ],
-      "period": {
-        "from": "2006-09",
-        "to": "2014-11",
-        "label": "Parcours déclaré au Front national : septembre 2006 — novembre 2014"
       }
     },
     {
@@ -125,307 +56,130 @@
       "label": "Alain Soral",
       "category": "person",
       "imageUrl": "assets/nodes/alain-soral.webp",
-      "summary": "Personne reliée au Rassemblement national et à Dieudonné par des informations éditoriales personnelles.",
-      "description": "Cette fiche personnelle représente les liens éditoriaux indiqués entre Alain Soral, le Rassemblement national et Dieudonné. La nature du lien avec Dieudonné n’est pas précisée.",
-      "status": "Information éditoriale personnelle",
-      "tags": [
-        "relation éditoriale",
-        "organisation"
-      ],
+      "summary": "Lié au Rassemblement national et à Dieudonné.",
+      "description": "Lié au Rassemblement national et à Dieudonné.",
       "position": {
         "x": -3.1,
         "y": -3,
         "rotation": 0.018
-      },
-      "sources": [
-        {
-          "id": "src-soral-rn-reference-utilisateur",
-          "title": "Lien entre Alain Soral et le Rassemblement national",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
-        },
-        {
-          "id": "src-dieudonne-alain-soral-reference-utilisateur",
-          "title": "Lien entre Dieudonné et Alain Soral",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle ; sa nature n’est pas précisée."
-        }
-      ]
+      }
     },
     {
       "id": "person-dieudonne",
       "label": "Dieudonné",
       "category": "person",
       "imageUrl": "assets/nodes/dieudonne.webp",
-      "summary": "Personne reliée à Alain Soral et à Greg Tabibian par des informations éditoriales personnelles.",
-      "description": "Cette fiche personnelle représente le lien éditorial indiqué avec Alain Soral ainsi qu’une collaboration avec Greg Tabibian en tant qu’humoristes.",
-      "aliases": [
-        "Dieudonné M’bala M’bala"
-      ],
-      "status": "Information éditoriale personnelle",
-      "tags": [
-        "relation éditoriale",
-        "personne"
-      ],
+      "summary": "Lié à Alain Soral. A collaboré avec Greg Tabibian en tant qu’humoriste.",
+      "description": "Lié à Alain Soral. A collaboré avec Greg Tabibian en tant qu’humoriste.",
       "position": {
         "x": -5.2,
         "y": -1.6,
         "rotation": -0.01
-      },
-      "sources": [
-        {
-          "id": "src-dieudonne-alain-soral-reference-utilisateur",
-          "title": "Lien entre Dieudonné et Alain Soral",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle ; sa nature n’est pas précisée."
-        },
-        {
-          "id": "src-dieudonne-greg-tabibian-collaboration-editoriale",
-          "title": "Collaboration entre Dieudonné et Greg Tabibian",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Collaboration en tant qu’humoristes indiquée par le propriétaire de cette page personnelle, sans source précise jointe."
-        }
-      ]
+      }
     },
     {
       "id": "person-greg-tabibian",
       "label": "Greg Tabibian",
       "category": "person",
       "imageUrl": "assets/nodes/greg-tabibian.webp",
-      "summary": "Humoriste relié à Dieudonné par une collaboration indiquée sur cette page personnelle.",
-      "description": "Greg Tabibian et Dieudonné sont présentés sur cette page personnelle comme ayant collaboré en tant qu’humoristes.",
-      "status": "Information éditoriale personnelle",
-      "tags": [
-        "humoriste",
-        "collaboration éditoriale"
-      ],
+      "summary": "A collaboré avec Dieudonné en tant qu’humoriste.",
+      "description": "A collaboré avec Dieudonné en tant qu’humoriste.",
       "position": {
         "x": -5.6,
         "y": 1.4,
         "rotation": 0.012
-      },
-      "sources": [
-        {
-          "id": "src-dieudonne-greg-tabibian-collaboration-editoriale",
-          "title": "Collaboration entre Dieudonné et Greg Tabibian",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Collaboration en tant qu’humoristes indiquée par le propriétaire de cette page personnelle, sans source précise jointe."
-        }
-      ]
+      }
     },
     {
       "id": "organization-rassemblement-national",
       "label": "Rassemblement national",
       "category": "organization",
       "imageUrl": "assets/nodes/rassemblement-national.webp",
-      "summary": "Organisation reliée à Julien Rochedy par son parcours déclaré au Front national et à Alain Soral par une information éditoriale personnelle.",
-      "description": "La relation avec Julien Rochedy s’appuie sur son témoignage vidéo : adhésion déclarée en 2006, direction nationale du FNJ mentionnée en 2012, fin du FNJ puis départ du parti en 2014. La relation avec Alain Soral est présentée comme une information éditoriale personnelle.",
-      "status": "Organisation — informations éditoriales personnelles",
-      "tags": [
-        "organisation",
-        "relations éditoriales"
-      ],
+      "summary": "Lié à Alain Soral, Julien Rochedy et Génération identitaire.",
+      "description": "Lié à Alain Soral, Julien Rochedy et Génération identitaire.",
       "position": {
         "x": 3.1,
         "y": -3,
         "rotation": -0.015
-      },
-      "sources": [
-        {
-          "id": "src-soral-rn-reference-utilisateur",
-          "title": "Lien entre Alain Soral et le Rassemblement national",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
-        },
-        {
-          "id": "src-video-julien-rochedy-rassemblement-national",
-          "title": "Témoignage vidéo de Julien Rochedy sur son parcours au Front national",
-          "publisher": "Julien Rochedy — YouTube",
-          "publishedAt": "Date non renseignée",
-          "url": "https://youtu.be/9md5AXZbUow",
-          "accessedAt": "2026-11-04",
-          "note": "Transcription fournie par le propriétaire de la page. Passages retenus : prise de carte en septembre 2006 (6:44–6:52), directeur national du FNJ en septembre 2012 (52:27–52:43), fin du FNJ à l’été 2014 (1:31:10–1:31:32) et départ du Front national vers novembre 2014 (1:36:37–1:37:03)."
-        }
-      ]
+      }
     },
     {
       "id": "person-loik-le-priol",
-      "label": "Loïk Le Priol",
+      "label": "Loik le Priol",
       "category": "person",
       "imageUrl": "assets/nodes/loik-le-priol.webp",
-      "summary": "Personne reliée à Julien Rochedy par une amitié passée puis un éloignement lié à des divergences de ligne.",
-      "description": "Loïk Le Priol et Julien Rochedy sont présentés sur cette page personnelle comme d’anciens amis qui se sont ensuite éloignés en raison de divergences de ligne.",
-      "aliases": [
-        "Loik le Priol"
-      ],
-      "status": "Information éditoriale personnelle",
-      "tags": [
-        "relation personnelle",
-        "divergences de ligne"
-      ],
+      "summary": "A été ami avec Julien Rochedy avant une séparation pour des conflits de ligne.",
+      "description": "A été ami avec Julien Rochedy avant une séparation pour des conflits de ligne.",
       "position": {
         "x": 4.1,
         "y": 2.7,
         "rotation": 0.014
-      },
-      "sources": [
-        {
-          "id": "src-loik-le-priol-julien-rochedy-reference-utilisateur",
-          "title": "Amitié passée entre Loïk Le Priol et Julien Rochedy",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Amitié passée et séparation attribuée à des divergences de ligne dans le cadre éditorial de cette page personnelle."
-        }
-      ]
+      }
     },
     {
       "id": "organization-generation-identitaire",
       "label": "Génération identitaire",
       "category": "organization",
       "imageUrl": "assets/nodes/generation-identitaire.webp",
-      "summary": "Groupe relié au Rassemblement national dans cette cartographie personnelle.",
-      "description": "Cette fiche représente Génération identitaire comme un groupe lié au Rassemblement national dans la ligne éditoriale de cette page personnelle.",
-      "status": "Information éditoriale personnelle",
-      "tags": [
-        "groupe",
-        "organisation",
-        "relation éditoriale"
-      ],
+      "summary": "Groupe lié au Rassemblement national. Thais d’Escufond en a été porte-parole.",
+      "description": "Groupe lié au Rassemblement national. Thais d’Escufond en a été porte-parole.",
       "position": {
         "x": -4.2,
         "y": 3.4,
         "rotation": -0.012
-      },
-      "sources": [
-        {
-          "id": "src-generation-identitaire-rassemblement-national-editorial",
-          "title": "Lien entre Génération identitaire et le Rassemblement national",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
-        }
-      ]
+      }
     },
     {
       "id": "person-thais-descufon",
-      "label": "Thaïs d’Escufon",
+      "label": "Thais d’Escufond",
       "category": "person",
       "imageUrl": "assets/nodes/thais-descufon.webp",
-      "summary": "Personne reliée à Génération identitaire par une fonction de porte-parole.",
-      "description": "Thaïs d’Escufon est présentée sur cette page personnelle comme ayant été porte-parole de Génération identitaire.",
-      "status": "Information éditoriale personnelle",
-      "tags": [
-        "porte-parole"
-      ],
+      "summary": "A été porte-parole de Génération identitaire.",
+      "description": "A été porte-parole de Génération identitaire.",
       "position": {
         "x": -4.8,
         "y": 4.6,
         "rotation": 0.01
-      },
-      "sources": [
-        {
-          "id": "src-thais-descufon-generation-identitaire-editorial",
-          "title": "Fonction de porte-parole de Génération identitaire",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Relation indiquée par le propriétaire de cette page personnelle."
-        }
-      ]
+      }
     },
     {
       "id": "person-kroc-blanc",
       "label": "Kroc Blanc",
       "category": "person",
       "imageUrl": "assets/nodes/kroc-blanc.webp",
-      "summary": "Personne reliée à Amalek et MC Amor.",
-      "description": "Kroc Blanc est relié à Amalek et MC Amor sur cette page personnelle.",
-      "status": "Information éditoriale personnelle",
+      "summary": "Lié à Amalek et MC Amor.",
+      "description": "Lié à Amalek et MC Amor.",
       "position": {
         "x": 5.2,
         "y": 4.4,
         "rotation": -0.01
-      },
-      "sources": [
-        {
-          "id": "src-kroc-blanc-amalek-editorial",
-          "title": "Lien entre Kroc Blanc et Amalek",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien indiqué par le propriétaire de cette page personnelle."
-        },
-        {
-          "id": "src-kroc-blanc-mc-amor-editorial",
-          "title": "Lien entre Kroc Blanc et MC Amor",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien indiqué par le propriétaire de cette page personnelle."
-        }
-      ]
+      }
     },
     {
       "id": "person-amalek",
       "label": "Amalek",
       "category": "person",
       "imageUrl": "assets/nodes/amalek.webp",
-      "summary": "Personne reliée à Kroc Blanc.",
-      "description": "Amalek est relié à Kroc Blanc sur cette page personnelle.",
-      "status": "Information éditoriale personnelle",
+      "summary": "Lié à Kroc Blanc.",
+      "description": "Lié à Kroc Blanc.",
       "position": {
         "x": 6.2,
         "y": 2.6,
         "rotation": 0.01
-      },
-      "sources": [
-        {
-          "id": "src-kroc-blanc-amalek-editorial",
-          "title": "Lien entre Kroc Blanc et Amalek",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien indiqué par le propriétaire de cette page personnelle."
-        }
-      ]
+      }
     },
     {
       "id": "person-mc-amor",
       "label": "MC Amor",
       "category": "person",
       "imageUrl": "assets/nodes/mc-amor.webp",
-      "summary": "Personne reliée à Kroc Blanc.",
-      "description": "MC Amor est relié à Kroc Blanc sur cette page personnelle.",
-      "status": "Information éditoriale personnelle",
+      "summary": "Lié à Kroc Blanc.",
+      "description": "Lié à Kroc Blanc.",
       "position": {
         "x": 6.3,
         "y": 5.5,
         "rotation": -0.012
-      },
-      "sources": [
-        {
-          "id": "src-kroc-blanc-mc-amor-editorial",
-          "title": "Lien entre Kroc Blanc et MC Amor",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien indiqué par le propriétaire de cette page personnelle."
-        }
-      ]
+      }
     }
   ],
   "edges": [
@@ -435,19 +189,7 @@
       "target": "person-code-rheno",
       "type": "documentary",
       "label": "A travaillé avec",
-      "description": "Collaboration présentée sur cette page personnelle autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-03",
-      "sources": [
-        {
-          "id": "src-video-gauchiste-pare-balle",
-          "title": "Le gauchiste est-il pare-balle ?",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-03",
-          "note": "Titre renseigné pour présenter la relation entre Papacito et Code Rheno."
-        }
-      ],
+      "description": "Papacito et Code Rheno ont travaillé ensemble autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
       "color": "#b83831"
     },
     {
@@ -456,19 +198,7 @@
       "target": "person-julien-rochedy",
       "type": "documentary",
       "label": "Ont écrit « Menace sur les gauchistes »",
-      "description": "Papacito et Julien Rochedy sont présentés comme coauteurs de l’ouvrage « Menace sur les gauchistes » dans la ligne éditoriale de cette page personnelle.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-04",
-      "sources": [
-        {
-          "id": "src-menace-sur-les-gauchistes-reference-utilisateur",
-          "title": "Menace sur les gauchistes",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Titre et attribution retenus par la ligne éditoriale de cette page personnelle."
-        }
-      ],
+      "description": "Papacito et Julien Rochedy ont écrit « Menace sur les gauchistes ».",
       "color": "#f02f7d"
     },
     {
@@ -476,20 +206,8 @@
       "source": "person-alain-soral",
       "target": "organization-rassemblement-national",
       "type": "documentary",
-      "label": "Lien mentionné",
-      "description": "Cette page personnelle présente un lien éditorial entre Alain Soral et le Rassemblement national.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-04",
-      "sources": [
-        {
-          "id": "src-soral-rn-reference-utilisateur",
-          "title": "Lien entre Alain Soral et le Rassemblement national",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
-        }
-      ],
+      "label": "Lié à",
+      "description": "Alain Soral est lié au Rassemblement national.",
       "color": "#f02f7d"
     },
     {
@@ -498,46 +216,16 @@
       "target": "organization-rassemblement-national",
       "type": "documentary",
       "label": "A dirigé le Front national de la jeunesse",
-      "description": "Dans un témoignage vidéo à la première personne, Julien Rochedy déclare être directeur national du Front national de la jeunesse en septembre 2012 et situe la fin de cette fonction à l’été 2014. Cette source directe établit son propre récit du lien ; les dates et l’intitulé officiel de la fonction restent à recouper indépendamment.",
-      "documentaryStatus": "established",
-      "lastVerifiedAt": "2026-11-04",
-      "sources": [
-        {
-          "id": "src-video-julien-rochedy-rassemblement-national",
-          "title": "Témoignage vidéo de Julien Rochedy sur son parcours au Front national",
-          "publisher": "Julien Rochedy — YouTube",
-          "publishedAt": "Date non renseignée",
-          "url": "https://youtu.be/9md5AXZbUow",
-          "accessedAt": "2026-11-04",
-          "note": "Transcription fournie par le propriétaire de la page. Passages retenus : prise de carte en septembre 2006 (6:44–6:52), directeur national du FNJ en septembre 2012 (52:27–52:43), fin du FNJ à l’été 2014 (1:31:10–1:31:32) et départ du Front national vers novembre 2014 (1:36:37–1:37:03)."
-        }
-      ],
-      "color": "#f02f7d",
-      "period": {
-        "from": "2012-09",
-        "to": "2014",
-        "label": "Direction du FNJ déclarée : attestée en septembre 2012 — fin à l’été 2014"
-      }
+      "description": "Julien Rochedy a dirigé le Front national de la jeunesse.",
+      "color": "#f02f7d"
     },
     {
       "id": "rel-loik-le-priol-julien-rochedy-amitie-rupture",
       "source": "person-loik-le-priol",
       "target": "person-julien-rochedy",
       "type": "documentary",
-      "label": "Amis, puis séparés par des divergences de ligne",
-      "description": "Sur cette page personnelle, Loïk Le Priol et Julien Rochedy sont présentés comme d’anciens amis qui se sont ensuite éloignés en raison de divergences de ligne.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-04",
-      "sources": [
-        {
-          "id": "src-loik-le-priol-julien-rochedy-reference-utilisateur",
-          "title": "Amitié passée entre Loïk Le Priol et Julien Rochedy",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Amitié passée et séparation attribuée à des divergences de ligne dans le cadre éditorial de cette page personnelle."
-        }
-      ],
+      "label": "Amis, puis séparés pour des conflits de ligne",
+      "description": "Loik le Priol et Julien Rochedy ont été amis et se sont séparés pour des conflits de ligne.",
       "color": "#f02f7d"
     },
     {
@@ -545,20 +233,8 @@
       "source": "organization-generation-identitaire",
       "target": "organization-rassemblement-national",
       "type": "documentary",
-      "label": "Liens avec",
-      "description": "Cette page personnelle présente des liens entre Génération identitaire et le Rassemblement national.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-04",
-      "sources": [
-        {
-          "id": "src-generation-identitaire-rassemblement-national-editorial",
-          "title": "Lien entre Génération identitaire et le Rassemblement national",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-04",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle."
-        }
-      ],
+      "label": "Lié à",
+      "description": "Génération identitaire est liée au Rassemblement national.",
       "color": "#f02f7d"
     },
     {
@@ -566,20 +242,8 @@
       "source": "person-dieudonne",
       "target": "person-alain-soral",
       "type": "documentary",
-      "label": "Lien mentionné",
-      "description": "Cette page personnelle présente un lien éditorial entre Dieudonné et Alain Soral. La nature de cette relation n’est pas précisée.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-05",
-      "sources": [
-        {
-          "id": "src-dieudonne-alain-soral-reference-utilisateur",
-          "title": "Lien entre Dieudonné et Alain Soral",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien retenu par la ligne éditoriale de cette page personnelle ; sa nature n’est pas précisée."
-        }
-      ],
+      "label": "Lié à",
+      "description": "Dieudonné est lié à Alain Soral.",
       "color": "#f02f7d"
     },
     {
@@ -588,19 +252,7 @@
       "target": "person-greg-tabibian",
       "type": "documentary",
       "label": "Ont collaboré en tant qu’humoristes",
-      "description": "Dieudonné et Greg Tabibian sont présentés sur cette page personnelle comme ayant collaboré en tant qu’humoristes.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-05",
-      "sources": [
-        {
-          "id": "src-dieudonne-greg-tabibian-collaboration-editoriale",
-          "title": "Collaboration entre Dieudonné et Greg Tabibian",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Collaboration en tant qu’humoristes indiquée par le propriétaire de cette page personnelle, sans source précise jointe."
-        }
-      ],
+      "description": "Dieudonné et Greg Tabibian ont collaboré en tant qu’humoristes.",
       "color": "#f02f7d"
     },
     {
@@ -609,19 +261,7 @@
       "target": "organization-generation-identitaire",
       "type": "documentary",
       "label": "A été porte-parole",
-      "description": "Thaïs d’Escufon est présentée sur cette page personnelle comme ayant été porte-parole de Génération identitaire.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-05",
-      "sources": [
-        {
-          "id": "src-thais-descufon-generation-identitaire-editorial",
-          "title": "Fonction de porte-parole de Génération identitaire",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Relation indiquée par le propriétaire de cette page personnelle."
-        }
-      ],
+      "description": "Thais d’Escufond a été porte-parole de Génération identitaire.",
       "color": "#f02f7d"
     },
     {
@@ -629,20 +269,8 @@
       "source": "person-kroc-blanc",
       "target": "person-amalek",
       "type": "documentary",
-      "label": "Lien mentionné",
-      "description": "Cette page personnelle présente un lien entre Kroc Blanc et Amalek.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-05",
-      "sources": [
-        {
-          "id": "src-kroc-blanc-amalek-editorial",
-          "title": "Lien entre Kroc Blanc et Amalek",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien indiqué par le propriétaire de cette page personnelle."
-        }
-      ],
+      "label": "Lié à",
+      "description": "Kroc Blanc est lié à Amalek.",
       "color": "#f02f7d"
     },
     {
@@ -650,20 +278,8 @@
       "source": "person-kroc-blanc",
       "target": "person-mc-amor",
       "type": "documentary",
-      "label": "Lien mentionné",
-      "description": "Cette page personnelle présente un lien entre Kroc Blanc et MC Amor.",
-      "documentaryStatus": "alleged",
-      "lastVerifiedAt": "2026-11-05",
-      "sources": [
-        {
-          "id": "src-kroc-blanc-mc-amor-editorial",
-          "title": "Lien entre Kroc Blanc et MC Amor",
-          "publisher": "Information éditoriale personnelle",
-          "publishedAt": "Non daté",
-          "accessedAt": "2026-11-05",
-          "note": "Lien indiqué par le propriétaire de cette page personnelle."
-        }
-      ],
+      "label": "Lié à",
+      "description": "Kroc Blanc est lié à MC Amor.",
       "color": "#f02f7d"
     }
   ]

@@ -32,7 +32,15 @@ describe('validateGraph', () => {
     const invalid = structuredClone(validGraph); invalid.edges[0]!.target = 'absent';
     const result = validateGraph(invalid); expect(result.success).toBe(false); expect(result.issues.some(issue => issue.path.endsWith('.target'))).toBe(true);
   });
-  it('refuse les contenus sans source', () => {
+  it('accepte les contenus sans source ni statut documentaire', () => {
+    const graph = structuredClone(validGraph);
+    delete graph.nodes[0]!.sources;
+    delete graph.edges[0]!.sources;
+    delete graph.edges[0]!.documentaryStatus;
+    delete graph.edges[0]!.lastVerifiedAt;
+    expect(validateGraph(graph)).toMatchObject({ success: true, issues: [] });
+  });
+  it('refuse une liste de sources vide lorsqu’elle est fournie', () => {
     const invalid = structuredClone(validGraph); invalid.nodes[0]!.sources = [];
     expect(validateGraph(invalid).issues).toContainEqual({ path: '$.nodes[0].sources', message: 'Au moins une source est requise' });
   });

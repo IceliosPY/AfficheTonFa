@@ -43,7 +43,7 @@ export function validateGraph(value: unknown): ValidationResult<InvestigationGra
     nodeIds.add(id);
     for (const key of ['label', 'summary', 'description']) requiredString(node, key, path, issues);
     if (!categories.has(node['category'] as NodeCategory)) issues.push({ path: `${path}.category`, message: 'Catégorie inconnue' });
-    validateSources(node['sources'], `${path}.sources`, issues);
+    if (node['sources'] !== undefined) validateSources(node['sources'], `${path}.sources`, issues);
     if (node['informationSections'] !== undefined) {
       if (!Array.isArray(node['informationSections'])) issues.push({ path: `${path}.informationSections`, message: 'Tableau requis' });
       else node['informationSections'].forEach((section, sectionIndex) => {
@@ -69,13 +69,14 @@ export function validateGraph(value: unknown): ValidationResult<InvestigationGra
     edgeIds.add(id);
     const source = requiredString(edge, 'source', path, issues);
     const target = requiredString(edge, 'target', path, issues);
-    for (const key of ['label', 'description', 'lastVerifiedAt']) requiredString(edge, key, path, issues);
+    for (const key of ['label', 'description']) requiredString(edge, key, path, issues);
+    if (edge['lastVerifiedAt'] !== undefined) requiredString(edge, 'lastVerifiedAt', path, issues);
     if (!nodeIds.has(source)) issues.push({ path: `${path}.source`, message: `Nœud inconnu: ${source}` });
     if (!nodeIds.has(target)) issues.push({ path: `${path}.target`, message: `Nœud inconnu: ${target}` });
     if (source === target) issues.push({ path, message: 'Une relation ne peut pas se relier elle-même' });
     if (!relationTypes.has(edge['type'] as RelationType)) issues.push({ path: `${path}.type`, message: 'Type inconnu' });
-    if (!statuses.has(edge['documentaryStatus'] as DocumentaryStatus)) issues.push({ path: `${path}.documentaryStatus`, message: 'Statut inconnu' });
-    validateSources(edge['sources'], `${path}.sources`, issues);
+    if (edge['documentaryStatus'] !== undefined && !statuses.has(edge['documentaryStatus'] as DocumentaryStatus)) issues.push({ path: `${path}.documentaryStatus`, message: 'Statut inconnu' });
+    if (edge['sources'] !== undefined) validateSources(edge['sources'], `${path}.sources`, issues);
   });
   return issues.length === 0 ? { success: true, data: value as unknown as InvestigationGraph, issues } : { success: false, issues };
 }

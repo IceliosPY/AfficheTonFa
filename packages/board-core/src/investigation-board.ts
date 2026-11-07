@@ -288,7 +288,7 @@ export class InvestigationBoard {
 
   private edgeMatchesFilters(edge: GraphEdge): boolean {
     const typeMatch = !this.filters.relationTypes?.length || this.filters.relationTypes.includes(edge.type);
-    const statusMatch = !this.filters.documentaryStatuses?.length || this.filters.documentaryStatuses.includes(edge.documentaryStatus);
+    const statusMatch = !this.filters.documentaryStatuses?.length || (edge.documentaryStatus !== undefined && this.filters.documentaryStatuses.includes(edge.documentaryStatus));
     return typeMatch && statusMatch;
   }
 

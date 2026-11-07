@@ -297,7 +297,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
   private edgeVisible(edge: GraphEdge): boolean {
     const types = this.filters.relationTypes ?? []; const statuses = this.filters.documentaryStatuses ?? [];
-    return (!types.length || types.includes(edge.type)) && (!statuses.length || statuses.includes(edge.documentaryStatus));
+    return (!types.length || types.includes(edge.type)) && (!statuses.length || (edge.documentaryStatus !== undefined && statuses.includes(edge.documentaryStatus)));
   }
   private hash(value: string): number { let result = 2166136261; for (const character of value) { result ^= character.charCodeAt(0); result = Math.imul(result, 16777619); } return result >>> 0; }
   private createPointTexture(): CanvasTexture {
