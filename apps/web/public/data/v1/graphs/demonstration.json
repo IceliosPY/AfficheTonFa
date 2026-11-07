@@ -17,8 +17,6 @@
       "label": "Papacito",
       "category": "person",
       "imageUrl": "assets/nodes/papacito.webp",
-      "summary": "A travaillé avec Code Rheno autour de la vidéo « Le gauchiste est-il pare-balle ? ». A écrit « Menace sur les gauchistes » avec Julien Rochedy.",
-      "description": "A travaillé avec Code Rheno autour de la vidéo « Le gauchiste est-il pare-balle ? ». A écrit « Menace sur les gauchistes » avec Julien Rochedy.",
       "position": {
         "x": -2.35,
         "y": 0,
@@ -30,8 +28,6 @@
       "label": "Code Rheno",
       "category": "person",
       "imageUrl": "assets/nodes/code-reinho.webp",
-      "summary": "A travaillé avec Papacito autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
-      "description": "A travaillé avec Papacito autour de la vidéo « Le gauchiste est-il pare-balle ? ».",
       "position": {
         "x": 2.35,
         "y": 0,
@@ -43,8 +39,6 @@
       "label": "Julien Rochedy",
       "category": "person",
       "imageUrl": "assets/nodes/julien-rochedy.webp",
-      "summary": "A écrit « Menace sur les gauchistes » avec Papacito. A dirigé le Front national de la jeunesse. A été ami avec Loik le Priol avant une séparation pour des conflits de ligne.",
-      "description": "A écrit « Menace sur les gauchistes » avec Papacito. A dirigé le Front national de la jeunesse. A été ami avec Loik le Priol avant une séparation pour des conflits de ligne.",
       "position": {
         "x": 0,
         "y": 2.8,
@@ -56,8 +50,6 @@
       "label": "Alain Soral",
       "category": "person",
       "imageUrl": "assets/nodes/alain-soral.webp",
-      "summary": "Lié au Rassemblement national et à Dieudonné.",
-      "description": "Lié au Rassemblement national et à Dieudonné.",
       "position": {
         "x": -3.1,
         "y": -3,
@@ -69,8 +61,6 @@
       "label": "Dieudonné",
       "category": "person",
       "imageUrl": "assets/nodes/dieudonne.webp",
-      "summary": "Lié à Alain Soral. A collaboré avec Greg Tabibian en tant qu’humoriste.",
-      "description": "Lié à Alain Soral. A collaboré avec Greg Tabibian en tant qu’humoriste.",
       "position": {
         "x": -5.2,
         "y": -1.6,
@@ -82,8 +72,6 @@
       "label": "Greg Tabibian",
       "category": "person",
       "imageUrl": "assets/nodes/greg-tabibian.webp",
-      "summary": "A collaboré avec Dieudonné en tant qu’humoriste.",
-      "description": "A collaboré avec Dieudonné en tant qu’humoriste.",
       "position": {
         "x": -5.6,
         "y": 1.4,
@@ -95,8 +83,6 @@
       "label": "Rassemblement national",
       "category": "organization",
       "imageUrl": "assets/nodes/rassemblement-national.webp",
-      "summary": "Lié à Alain Soral, Julien Rochedy et Génération identitaire.",
-      "description": "Lié à Alain Soral, Julien Rochedy et Génération identitaire.",
       "position": {
         "x": 3.1,
         "y": -3,
@@ -108,8 +94,6 @@
       "label": "Loik le Priol",
       "category": "person",
       "imageUrl": "assets/nodes/loik-le-priol.webp",
-      "summary": "A été ami avec Julien Rochedy avant une séparation pour des conflits de ligne.",
-      "description": "A été ami avec Julien Rochedy avant une séparation pour des conflits de ligne.",
       "position": {
         "x": 4.1,
         "y": 2.7,
@@ -121,8 +105,6 @@
       "label": "Génération identitaire",
       "category": "organization",
       "imageUrl": "assets/nodes/generation-identitaire.webp",
-      "summary": "Groupe lié au Rassemblement national. Thais d’Escufond en a été porte-parole.",
-      "description": "Groupe lié au Rassemblement national. Thais d’Escufond en a été porte-parole.",
       "position": {
         "x": -4.2,
         "y": 3.4,
@@ -134,8 +116,6 @@
       "label": "Thais d’Escufond",
       "category": "person",
       "imageUrl": "assets/nodes/thais-descufon.webp",
-      "summary": "A été porte-parole de Génération identitaire.",
-      "description": "A été porte-parole de Génération identitaire.",
       "position": {
         "x": -4.8,
         "y": 4.6,
@@ -147,8 +127,6 @@
       "label": "Kroc Blanc",
       "category": "person",
       "imageUrl": "assets/nodes/kroc-blanc.webp",
-      "summary": "Lié à Amalek et MC Amor.",
-      "description": "Lié à Amalek et MC Amor.",
       "position": {
         "x": 5.2,
         "y": 4.4,
@@ -160,8 +138,6 @@
       "label": "Amalek",
       "category": "person",
       "imageUrl": "assets/nodes/amalek.webp",
-      "summary": "Lié à Kroc Blanc.",
-      "description": "Lié à Kroc Blanc.",
       "position": {
         "x": 6.2,
         "y": 2.6,
@@ -173,8 +149,6 @@
       "label": "MC Amor",
       "category": "person",
       "imageUrl": "assets/nodes/mc-amor.webp",
-      "summary": "Lié à Kroc Blanc.",
-      "description": "Lié à Kroc Blanc.",
       "position": {
         "x": 6.3,
         "y": 5.5,

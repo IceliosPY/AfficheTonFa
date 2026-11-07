@@ -7,7 +7,7 @@ export interface BoardPosition { x: number; y: number; z?: number; rotation?: nu
 export interface NodeInformationItem { label: string; value: string; }
 export interface NodeInformationSection { id: string; title: string; items: NodeInformationItem[]; }
 export interface GraphNode {
-  id: string; label: string; category: NodeCategory; summary: string; description: string;
+  id: string; label: string; category: NodeCategory; summary?: string; description?: string;
   aliases?: string[]; period?: { from?: string; to?: string; label?: string }; location?: string;
   status?: string; imageUrl?: string; tags?: string[]; position?: BoardPosition;
   sources?: SourceReference[]; informationSections?: NodeInformationSection[]; metadata?: Record<string, string | number | boolean | null>;

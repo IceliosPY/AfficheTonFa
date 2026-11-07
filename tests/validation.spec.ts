@@ -18,6 +18,12 @@ describe('validateGraph', () => {
     const empty = { ...validGraph, nodes: [], edges: [] };
     expect(validateGraph(empty)).toMatchObject({ success: true, issues: [] });
   });
+  it('accepte une fiche limitée à son identité et à sa catégorie', () => {
+    const graph = structuredClone(validGraph);
+    delete graph.nodes[0]!.summary;
+    delete graph.nodes[0]!.description;
+    expect(validateGraph(graph)).toMatchObject({ success: true, issues: [] });
+  });
   it('accepte des rubriques d’informations structurées sur une fiche', () => {
     const graph = structuredClone(validGraph);
     graph.nodes[0]!.informationSections = [{ id: 'identite', title: 'Identité', items: [{ label: 'Nom', value: 'Exemple' }] }];

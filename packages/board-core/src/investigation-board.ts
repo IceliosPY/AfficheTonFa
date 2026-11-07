@@ -297,7 +297,7 @@ export class InvestigationBoard {
     const query = this.filters.query?.trim().toLocaleLowerCase('fr') ?? '';
     for (const node of this.graph.nodes) {
       const categoryMatch = !this.filters.categories?.length || this.filters.categories.includes(node.category);
-      const text = `${node.label} ${node.summary} ${node.description} ${(node.aliases ?? []).join(' ')}`.toLocaleLowerCase('fr');
+      const text = `${node.label} ${node.summary ?? ''} ${node.description ?? ''} ${(node.aliases ?? []).join(' ')}`.toLocaleLowerCase('fr');
       const queryMatch = !query || text.includes(query); const mesh = this.nodeMeshes.get(node.id); if (mesh) mesh.visible = categoryMatch && queryMatch;
     }
     this.updateFocusVisibility();

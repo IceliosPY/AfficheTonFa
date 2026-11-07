@@ -59,7 +59,7 @@ const categoryLabels: Record<NodeCategory, string> = {
         <atf-board-canvas #board *ngIf="viewMode === 'board'" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
         <section class="document-view" *ngIf="viewMode === 'document'" aria-label="Vue documentaire accessible">
           <div class="document-card" *ngFor="let node of filteredNodes" tabindex="0" (click)="selectNode(node)" (keydown.enter)="selectNode(node)">
-            <span [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span><h2>{{ node.label }}</h2><p>{{ node.description }}</p>
+            <span [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span><h2>{{ node.label }}</h2><p *ngIf="node.description">{{ node.description }}</p>
           </div>
         </section>
         <div class="controls-hint" *ngIf="viewMode === 'mind'">glisser pour se déplacer · molette pour zoomer · cliquer pour ouvrir</div>
@@ -121,7 +121,7 @@ const categoryLabels: Record<NodeCategory, string> = {
               </figure>
             </div>
           </header>
-          <section class="detail-section">
+          <section class="detail-section" *ngIf="node.description">
             <div class="section-heading"><h3>Description</h3></div>
             <p>{{ node.description }}</p>
           </section>
@@ -235,6 +235,6 @@ export class AppComponent implements OnInit {
     const information = (node.informationSections ?? [])
       .flatMap((section) => [section.title, ...section.items.flatMap((item) => [item.label, item.value])])
       .join(' ');
-    return `${node.label} ${(node.aliases ?? []).join(' ')} ${node.summary} ${node.description} ${(node.tags ?? []).join(' ')} ${information}`.toLocaleLowerCase('fr');
+    return `${node.label} ${(node.aliases ?? []).join(' ')} ${node.summary ?? ''} ${node.description ?? ''} ${(node.tags ?? []).join(' ')} ${information}`.toLocaleLowerCase('fr');
   }
 }

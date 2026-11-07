@@ -41,7 +41,9 @@ export function validateGraph(value: unknown): ValidationResult<InvestigationGra
     const id = requiredString(node, 'id', path, issues);
     if (nodeIds.has(id)) issues.push({ path: `${path}.id`, message: `Identifiant dupliqué: ${id}` });
     nodeIds.add(id);
-    for (const key of ['label', 'summary', 'description']) requiredString(node, key, path, issues);
+    requiredString(node, 'label', path, issues);
+    if (node['summary'] !== undefined) requiredString(node, 'summary', path, issues);
+    if (node['description'] !== undefined) requiredString(node, 'description', path, issues);
     if (!categories.has(node['category'] as NodeCategory)) issues.push({ path: `${path}.category`, message: 'Catégorie inconnue' });
     if (node['sources'] !== undefined) validateSources(node['sources'], `${path}.sources`, issues);
     if (node['informationSections'] !== undefined) {

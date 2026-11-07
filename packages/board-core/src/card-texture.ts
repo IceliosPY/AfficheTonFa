@@ -38,7 +38,7 @@ export function createCardTexture(node: GraphNode, selected = false): CanvasText
   wrapText(context, node.label, 575).slice(0, 2).forEach((line, index) => context.fillText(line, 30, 112 + index * 43));
   context.strokeStyle = colors[node.category]; context.lineWidth = 3; context.beginPath(); context.moveTo(30, 190); context.lineTo(610, 190); context.stroke();
   context.fillStyle = '#4d463b'; context.font = '24px system-ui, sans-serif';
-  wrapText(context, node.summary, 575).slice(0, 4).forEach((line, index) => context.fillText(line, 30, 235 + index * 34));
+  wrapText(context, node.summary ?? '', 575).slice(0, 4).forEach((line, index) => context.fillText(line, 30, 235 + index * 34));
   context.fillStyle = '#756c5e'; context.font = '600 17px ui-monospace, monospace'; context.fillText(node.id.toUpperCase(), 30, 392);
   if (selected) { context.strokeStyle = '#d13f38'; context.lineWidth = 12; context.strokeRect(6, 6, 628, 408); }
   const texture = new CanvasTexture(canvas); texture.colorSpace = SRGBColorSpace; texture.needsUpdate = true;
