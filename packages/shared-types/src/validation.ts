@@ -44,6 +44,20 @@ export function validateGraph(value: unknown): ValidationResult<InvestigationGra
     for (const key of ['label', 'summary', 'description']) requiredString(node, key, path, issues);
     if (!categories.has(node['category'] as NodeCategory)) issues.push({ path: `${path}.category`, message: 'Catégorie inconnue' });
     validateSources(node['sources'], `${path}.sources`, issues);
+    if (node['informationSections'] !== undefined) {
+      if (!Array.isArray(node['informationSections'])) issues.push({ path: `${path}.informationSections`, message: 'Tableau requis' });
+      else node['informationSections'].forEach((section, sectionIndex) => {
+        const sectionPath = `${path}.informationSections[${sectionIndex}]`;
+        if (!isRecord(section)) { issues.push({ path: sectionPath, message: 'Objet section requis' }); return; }
+        for (const key of ['id', 'title']) requiredString(section, key, sectionPath, issues);
+        if (!Array.isArray(section['items']) || section['items'].length === 0) issues.push({ path: `${sectionPath}.items`, message: 'Au moins une information est requise' });
+        else section['items'].forEach((item, itemIndex) => {
+          const itemPath = `${sectionPath}.items[${itemIndex}]`;
+          if (!isRecord(item)) { issues.push({ path: itemPath, message: 'Objet information requis' }); return; }
+          for (const key of ['label', 'value']) requiredString(item, key, itemPath, issues);
+        });
+      });
+    }
   });
 
   const edgeIds = new Set<string>();

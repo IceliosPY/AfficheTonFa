@@ -59,7 +59,7 @@ const categoryLabels: Record<NodeCategory, string> = {
         <atf-board-canvas #board *ngIf="viewMode === 'board'" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
         <section class="document-view" *ngIf="viewMode === 'document'" aria-label="Vue documentaire accessible">
           <div class="document-card" *ngFor="let node of filteredNodes" tabindex="0" (click)="selectNode(node)" (keydown.enter)="selectNode(node)">
-            <span [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span><h2>{{ node.label }}</h2><p>{{ node.description }}</p><small>{{ node.sources.length }} source(s)</small>
+            <span [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span><h2>{{ node.label }}</h2><p>{{ node.description }}</p>
           </div>
         </section>
         <div class="controls-hint" *ngIf="viewMode === 'mind'">glisser pour se déplacer · molette pour zoomer · cliquer pour ouvrir</div>
@@ -107,14 +107,14 @@ const categoryLabels: Record<NodeCategory, string> = {
       </aside>
 
       <aside class="detail-panel" [class.open]="selectedNode || selectedEdge" aria-live="polite">
-        <div class="detail-toolbar"><span>{{ selectedEdge ? 'RELATION DOCUMENTAIRE' : 'FICHE DOCUMENTAIRE' }}</span><button class="close" type="button" (click)="closeDetails()" aria-label="Fermer le panneau">×</button></div>
+        <div class="detail-toolbar"><span>{{ selectedEdge ? 'RELATION' : 'FICHE' }}</span><button class="close" type="button" (click)="closeDetails()" aria-label="Fermer le panneau">×</button></div>
         <div class="detail-content">
         <ng-container *ngIf="selectedNode as node">
           <header class="detail-hero">
             <div class="detail-hero-layout">
               <div class="detail-hero-copy">
                 <span class="detail-type" [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span>
-                <h2>{{ node.label }}</h2><p class="lead">{{ node.summary }}</p>
+                <h2>{{ node.label }}</h2>
               </div>
               <figure class="detail-portrait" *ngIf="node.imageUrl" [attr.data-category]="node.category">
                 <img [src]="node.imageUrl" [alt]="node.category === 'organization' ? 'Logo de ' + node.label : 'Portrait de ' + node.label">
@@ -122,25 +122,14 @@ const categoryLabels: Record<NodeCategory, string> = {
             </div>
           </header>
           <section class="detail-section">
-            <div class="section-heading"><h3>Note documentaire</h3><span>Synthèse</span></div>
+            <div class="section-heading"><h3>Description</h3></div>
             <p>{{ node.description }}</p>
           </section>
-          <section class="detail-section detail-facts" *ngIf="node.period || node.location || node.status">
-            <div class="section-heading"><h3>Repères documentaires</h3><span>État de la fiche</span></div>
-            <dl class="metadata-grid">
-              <ng-container *ngIf="node.period"><div><dt>Période</dt><dd>{{ node.period.label || ((node.period.from || '?') + ' — ' + (node.period.to || 'présent')) }}</dd></div></ng-container>
-              <ng-container *ngIf="node.location"><div><dt>Zone</dt><dd>{{ node.location }}</dd></div></ng-container>
-              <ng-container *ngIf="node.status"><div class="wide"><dt>Statut</dt><dd><span class="status-pill">{{ node.status }}</span></dd></div></ng-container>
+          <section class="detail-section information-section" *ngFor="let informationSection of node.informationSections">
+            <div class="section-heading"><h3>{{ informationSection.title }}</h3></div>
+            <dl class="information-list">
+              <div *ngFor="let item of informationSection.items"><dt>{{ item.label }}</dt><dd>{{ item.value }}</dd></div>
             </dl>
-          </section>
-          <section class="detail-section" *ngIf="node.sources.length">
-            <div class="section-heading"><h3>Sources</h3><span>{{ node.sources.length }} référence{{ node.sources.length > 1 ? 's' : '' }}</span></div>
-            <div class="sources source-list">
-              <details class="source-card" *ngFor="let source of node.sources; let i = index">
-                <summary><span class="source-index">{{ i + 1 }}</span><span class="source-summary"><strong>{{ source.title }}</strong><small>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</small></span><span class="source-chevron">⌄</span></summary>
-                <div class="source-body"><em *ngIf="source.note">{{ source.note }}</em><a *ngIf="source.url" [href]="source.url" target="_blank" rel="noopener noreferrer">Consulter la source ↗</a></div>
-              </details>
-            </div>
           </section>
           <section class="detail-section" *ngIf="relatedEdges(node.id).length">
             <div class="section-heading"><h3>Relations directes</h3><span>{{ relatedEdges(node.id).length }}</span></div>
@@ -152,21 +141,6 @@ const categoryLabels: Record<NodeCategory, string> = {
             <span class="detail-type relation-tag">RELATION · {{ edge.type }}</span><h2>{{ edge.label }}</h2><p class="lead">{{ edge.description }}</p>
           </header>
           <div class="relation-route"><span>{{ nodeLabel(edge.source) }}</span><i>→</i><span>{{ nodeLabel(edge.target) }}</span></div>
-          <section class="detail-section detail-facts" *ngIf="edge.period">
-            <div class="section-heading"><h3>Repères documentaires</h3><span>Chronologie</span></div>
-            <dl class="metadata-grid">
-              <div class="wide"><dt>Période</dt><dd>{{ edge.period.label || ((edge.period.from || '?') + ' — ' + (edge.period.to || 'présent')) }}</dd></div>
-            </dl>
-          </section>
-          <section class="detail-section" *ngIf="edge.sources.length">
-            <div class="section-heading"><h3>Sources</h3><span>{{ edge.sources.length }} référence{{ edge.sources.length > 1 ? 's' : '' }}</span></div>
-            <div class="sources source-list">
-              <details class="source-card" *ngFor="let source of edge.sources; let i = index">
-                <summary><span class="source-index">{{ i + 1 }}</span><span class="source-summary"><strong>{{ source.title }}</strong><small>{{ source.publisher }} · {{ displayDate(source.publishedAt) }}</small></span><span class="source-chevron">⌄</span></summary>
-                <div class="source-body"><em *ngIf="source.note">{{ source.note }}</em><a *ngIf="source.url" [href]="source.url" target="_blank" rel="noopener noreferrer">Consulter la source ↗</a></div>
-              </details>
-            </div>
-          </section>
         </ng-container>
         </div>
       </aside>
@@ -253,13 +227,14 @@ export class AppComponent implements OnInit {
   nodeLabel(id: string): string { return this.graph?.nodes.find((node) => node.id === id)?.label ?? id; }
   relatedEdges(id: string): GraphEdge[] { return this.graph?.edges.filter((edge) => edge.source === id || edge.target === id) ?? []; }
   relatedNodeLabel(edge: GraphEdge, nodeId: string): string { return this.nodeLabel(edge.source === nodeId ? edge.target : edge.source); }
-  displayDate(value: string): string {
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
-  }
   private async loadGraph(): Promise<void> {
     this.graph = await new StaticJsonDataProvider('data/v1/graphs').loadGraph('demonstration');
     this.changeDetector.detectChanges();
   }
-  private searchableText(node: GraphNode): string { return `${node.label} ${(node.aliases ?? []).join(' ')} ${node.summary} ${node.description} ${(node.tags ?? []).join(' ')}`.toLocaleLowerCase('fr'); }
+  private searchableText(node: GraphNode): string {
+    const information = (node.informationSections ?? [])
+      .flatMap((section) => [section.title, ...section.items.flatMap((item) => [item.label, item.value])])
+      .join(' ');
+    return `${node.label} ${(node.aliases ?? []).join(' ')} ${node.summary} ${node.description} ${(node.tags ?? []).join(' ')} ${information}`.toLocaleLowerCase('fr');
+  }
 }

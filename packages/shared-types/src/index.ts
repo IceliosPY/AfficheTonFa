@@ -4,11 +4,13 @@ export type DocumentaryStatus = 'established' | 'alleged' | 'disputed' | 'archiv
 
 export interface SourceReference { id: string; title: string; publisher: string; publishedAt: string; url?: string; accessedAt?: string; note?: string; }
 export interface BoardPosition { x: number; y: number; z?: number; rotation?: number; }
+export interface NodeInformationItem { label: string; value: string; }
+export interface NodeInformationSection { id: string; title: string; items: NodeInformationItem[]; }
 export interface GraphNode {
   id: string; label: string; category: NodeCategory; summary: string; description: string;
   aliases?: string[]; period?: { from?: string; to?: string; label?: string }; location?: string;
   status?: string; imageUrl?: string; tags?: string[]; position?: BoardPosition;
-  sources: SourceReference[]; metadata?: Record<string, string | number | boolean | null>;
+  sources: SourceReference[]; informationSections?: NodeInformationSection[]; metadata?: Record<string, string | number | boolean | null>;
 }
 export interface GraphEdge {
   id: string; source: string; target: string; type: RelationType; label: string; description: string;

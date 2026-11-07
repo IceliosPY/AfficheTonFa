@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { validateGraph } from '@affichetonfa/shared-types';
+import type { InvestigationGraph } from '@affichetonfa/shared-types';
 
 const source = { id: 's1', title: 'Source fictive', publisher: 'Éditeur fictif', publishedAt: '2026-01-01' };
-const validGraph = {
+const validGraph: InvestigationGraph = {
   schemaVersion: '1.0', id: 'g', title: 'Graphe', description: 'Description', notice: 'Données fictives', updatedAt: '2026-01-01',
   nodes: [
     { id: 'a', label: 'A', category: 'organization', summary: 'Résumé A', description: 'Description A', sources: [source] },
@@ -16,6 +17,16 @@ describe('validateGraph', () => {
   it('accepte un tableau vide prêt à être enrichi', () => {
     const empty = { ...validGraph, nodes: [], edges: [] };
     expect(validateGraph(empty)).toMatchObject({ success: true, issues: [] });
+  });
+  it('accepte des rubriques d’informations structurées sur une fiche', () => {
+    const graph = structuredClone(validGraph);
+    graph.nodes[0]!.informationSections = [{ id: 'identite', title: 'Identité', items: [{ label: 'Nom', value: 'Exemple' }] }];
+    expect(validateGraph(graph)).toMatchObject({ success: true, issues: [] });
+  });
+  it('refuse une rubrique d’informations vide', () => {
+    const graph = structuredClone(validGraph);
+    graph.nodes[0]!.informationSections = [{ id: 'identite', title: 'Identité', items: [] }];
+    expect(validateGraph(graph).issues).toContainEqual({ path: '$.nodes[0].informationSections[0].items', message: 'Au moins une information est requise' });
   });
   it('refuse une relation vers un nœud inconnu', () => {
     const invalid = structuredClone(validGraph); invalid.edges[0]!.target = 'absent';
