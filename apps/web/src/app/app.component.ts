@@ -125,11 +125,14 @@ const categoryLabels: Record<NodeCategory, string> = {
             <div class="section-heading"><h3>Note documentaire</h3><span>Synthèse</span></div>
             <p>{{ node.description }}</p>
           </section>
-          <dl class="metadata-grid" *ngIf="node.period || node.location || node.status">
-            <ng-container *ngIf="node.period"><div><dt>Période</dt><dd>{{ node.period.label || ((node.period.from || '?') + ' — ' + (node.period.to || 'présent')) }}</dd></div></ng-container>
-            <ng-container *ngIf="node.location"><div><dt>Zone</dt><dd>{{ node.location }}</dd></div></ng-container>
-            <ng-container *ngIf="node.status"><div class="wide"><dt>Statut</dt><dd><span class="status-pill">{{ node.status }}</span></dd></div></ng-container>
-          </dl>
+          <section class="detail-section detail-facts" *ngIf="node.period || node.location || node.status">
+            <div class="section-heading"><h3>Repères documentaires</h3><span>État de la fiche</span></div>
+            <dl class="metadata-grid">
+              <ng-container *ngIf="node.period"><div><dt>Période</dt><dd>{{ node.period.label || ((node.period.from || '?') + ' — ' + (node.period.to || 'présent')) }}</dd></div></ng-container>
+              <ng-container *ngIf="node.location"><div><dt>Zone</dt><dd>{{ node.location }}</dd></div></ng-container>
+              <ng-container *ngIf="node.status"><div class="wide"><dt>Statut</dt><dd><span class="status-pill">{{ node.status }}</span></dd></div></ng-container>
+            </dl>
+          </section>
           <section class="detail-section" *ngIf="node.sources.length">
             <div class="section-heading"><h3>Sources</h3><span>{{ node.sources.length }} référence{{ node.sources.length > 1 ? 's' : '' }}</span></div>
             <div class="sources source-list">
@@ -149,9 +152,12 @@ const categoryLabels: Record<NodeCategory, string> = {
             <span class="detail-type relation-tag">RELATION · {{ edge.type }}</span><h2>{{ edge.label }}</h2><p class="lead">{{ edge.description }}</p>
           </header>
           <div class="relation-route"><span>{{ nodeLabel(edge.source) }}</span><i>→</i><span>{{ nodeLabel(edge.target) }}</span></div>
-          <dl class="metadata-grid" *ngIf="edge.period">
-            <div class="wide" *ngIf="edge.period"><dt>Période</dt><dd>{{ edge.period.label || ((edge.period.from || '?') + ' — ' + (edge.period.to || 'présent')) }}</dd></div>
-          </dl>
+          <section class="detail-section detail-facts" *ngIf="edge.period">
+            <div class="section-heading"><h3>Repères documentaires</h3><span>Chronologie</span></div>
+            <dl class="metadata-grid">
+              <div class="wide"><dt>Période</dt><dd>{{ edge.period.label || ((edge.period.from || '?') + ' — ' + (edge.period.to || 'présent')) }}</dd></div>
+            </dl>
+          </section>
           <section class="detail-section" *ngIf="edge.sources.length">
             <div class="section-heading"><h3>Sources</h3><span>{{ edge.sources.length }} référence{{ edge.sources.length > 1 ? 's' : '' }}</span></div>
             <div class="sources source-list">
