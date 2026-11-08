@@ -43,8 +43,8 @@ const categoryTextColors: Record<NodeCategory, string> = {
     .zoom-labels{position:absolute;z-index:3;inset:0;overflow:hidden;pointer-events:none}
     .loading{position:absolute;left:50%;top:50%;translate:-50% -50%;padding:.75rem 1rem;background:#1b102ee8;border:1px solid #ff4b9138;color:#f5dae5;font-size:12px}
     .map-tools{position:absolute;right:16px;bottom:16px;display:flex;background:#1b102ed9;border:1px solid #ff4b912e}
-    .map-tools button{min-width:34px;height:32px;border:0;border-right:1px solid #ff4b9124;background:transparent;color:#c99bb4;font:600 10px ui-monospace,monospace;cursor:pointer}
-    .map-tools button:last-child{border-right:0;padding:0 11px}.map-tools button:hover{color:#fff;background:#ff4b9114}
+    .map-tools button{min-width:44px;height:44px;border:0;border-right:1px solid #ff4b9124;background:transparent;color:#c99bb4;font:600 12px ui-monospace,monospace;cursor:pointer}
+    .map-tools button:last-child{border-right:0;padding:0 14px}.map-tools button:hover{color:#fff;background:#ff4b9114}.map-tools button:focus-visible{outline:2px solid #ff78aa;outline-offset:-3px}
   `],
 })
 export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
@@ -91,7 +91,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.controls = new OrbitControls(this.camera, this.canvas.nativeElement);
     this.controls.enableDamping = true; this.controls.dampingFactor = .065; this.controls.enableRotate = true;
     this.controls.minPolarAngle = 0; this.controls.maxPolarAngle = Math.PI;
-    this.raycaster.params.Points = { threshold: .72 }; this.raycaster.params.Line = { threshold: .12 };
+    this.raycaster.params.Points = { threshold: 1.15 }; this.raycaster.params.Line = { threshold: .3 };
     this.canvas.nativeElement.addEventListener('pointermove', this.onPointerMove);
     this.canvas.nativeElement.addEventListener('pointerleave', this.onPointerLeave);
     this.canvas.nativeElement.addEventListener('click', this.onClick);
@@ -151,7 +151,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     const pointPositions = this.nodeIds.flatMap((id) => this.nodePositions.get(id)?.toArray() ?? [0, 0, 0]);
     const pointColors = visibleNodes.flatMap((node) => new Color(node.id === this.selectedNodeId ? '#efffff' : categoryColors[node.category]).toArray());
     const pointGeometry = new BufferGeometry(); pointGeometry.setAttribute('position', new Float32BufferAttribute(pointPositions, 3)); pointGeometry.setAttribute('color', new Float32BufferAttribute(pointColors, 3));
-    const pointMaterial = new PointsMaterial({ size: 24, sizeAttenuation: false, map: this.pointTexture, alphaTest: .08, transparent: true, vertexColors: true, blending: AdditiveBlending, depthWrite: false });
+    const pointMaterial = new PointsMaterial({ size: 30, sizeAttenuation: false, map: this.pointTexture, alphaTest: .08, transparent: true, vertexColors: true, blending: AdditiveBlending, depthWrite: false });
     this.pointCloud = new Points(pointGeometry, pointMaterial); this.scene.add(this.pointCloud);
 
     const visibleEdges = graph.edges.filter((edge) => visibleIds.has(edge.source) && visibleIds.has(edge.target) && this.edgeVisible(edge));
@@ -197,7 +197,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     for (const node of nodes) {
       const visual = document.createElement('div'); const color = categoryColors[node.category];
       Object.assign(visual.style, {
-        position: 'absolute', left: '0', top: '0', width: '52px', height: '52px', borderRadius: '50%', boxSizing: 'border-box',
+        position: 'absolute', left: '0', top: '0', width: '64px', height: '64px', borderRadius: '50%', boxSizing: 'border-box',
         border: `3px solid ${color}`, background: node.category === 'organization' ? '#f5f2e9' : '#211238',
         boxShadow: `0 0 0 2px #211238, 0 0 20px ${color}a8`, overflow: 'hidden', willChange: 'transform',
       });
@@ -257,7 +257,7 @@ export class MindMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         this.zoomLabels.nativeElement.append(element); element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' }); this.zoomLabelElements.set(id, element);
       }
       const x = (position.x + 1) * .5 * width; const y = (1 - position.y) * .5 * height;
-      element.style.transform = `translate3d(${x}px,${y}px,0) translate(34px,-50%)`;
+      element.style.transform = `translate3d(${x}px,${y}px,0) translate(41px,-50%)`;
     }
     for (const [id, element] of this.zoomLabelElements) if (!visible.has(id)) { element.remove(); this.zoomLabelElements.delete(id); }
   }

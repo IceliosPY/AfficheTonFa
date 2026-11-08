@@ -226,7 +226,7 @@ export class InvestigationBoard {
     ) as EdgeBatch;
     batch.userData = { kind: 'edge-batch' }; batch.castShadow = true; batch.frustumCulled = false;
     const hitBatch = new InstancedMesh(
-      new CylinderGeometry(0.12, 0.12, 1, 5),
+      new CylinderGeometry(0.22, 0.22, 1, 6),
       new MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }),
       edgeCount * LINK_SEGMENTS,
     ) as EdgeHitBatch;
@@ -329,13 +329,15 @@ export class InvestigationBoard {
       else { this.selectNode(); this.selectEdge(); }
     };
     const onPointerMove = (event: PointerEvent): void => {
-      if (!this.dragging) return; this.setPointer(event); const point = new Vector3(); this.raycaster.setFromCamera(this.pointer, this.camera);
+      if (!this.dragging) { const hit = this.pick(event); canvas.style.cursor = hit?.object.userData['kind'] === 'node' || hit?.object.userData['kind'] === 'edge-batch' ? 'pointer' : 'grab'; return; }
+      this.setPointer(event); const point = new Vector3(); this.raycaster.setFromCamera(this.pointer, this.camera);
       if (this.raycaster.ray.intersectPlane(this.dragPlane, point)) {
         this.dragging.position.x = MathUtils.clamp(point.x, this.boardBounds.minX, this.boardBounds.maxX);
         this.dragging.position.y = MathUtils.clamp(point.y, this.boardBounds.minY, this.boardBounds.maxY);
         this.rebuildEdges();
       }
     };
+    const onPointerLeave = (): void => { if (!this.dragging) canvas.style.cursor = 'grab'; };
     const onPointerUp = (event: PointerEvent): void => { if (this.dragging) canvas.releasePointerCapture(event.pointerId); this.dragging = undefined; this.controls.enabled = true; };
     const onKey = (event: KeyboardEvent): void => {
       if (this.options.enableKeyboard === false) return; const step = event.shiftKey ? 1.2 : 0.55;
@@ -346,8 +348,8 @@ export class InvestigationBoard {
       event.preventDefault();
     };
     const onCamera = (): void => this.emit('camera-changed', this.getCameraState());
-    canvas.addEventListener('pointerdown', onPointerDown); canvas.addEventListener('pointermove', onPointerMove); canvas.addEventListener('pointerup', onPointerUp); canvas.addEventListener('keydown', onKey); this.controls.addEventListener('end', onCamera);
-    this.subscriptions.push(() => canvas.removeEventListener('pointerdown', onPointerDown), () => canvas.removeEventListener('pointermove', onPointerMove), () => canvas.removeEventListener('pointerup', onPointerUp), () => canvas.removeEventListener('keydown', onKey), () => this.controls.removeEventListener('end', onCamera));
+    canvas.addEventListener('pointerdown', onPointerDown); canvas.addEventListener('pointermove', onPointerMove); canvas.addEventListener('pointerleave', onPointerLeave); canvas.addEventListener('pointerup', onPointerUp); canvas.addEventListener('keydown', onKey); this.controls.addEventListener('end', onCamera);
+    this.subscriptions.push(() => canvas.removeEventListener('pointerdown', onPointerDown), () => canvas.removeEventListener('pointermove', onPointerMove), () => canvas.removeEventListener('pointerleave', onPointerLeave), () => canvas.removeEventListener('pointerup', onPointerUp), () => canvas.removeEventListener('keydown', onKey), () => this.controls.removeEventListener('end', onCamera));
   }
 
   private pick(event: PointerEvent): { object: Mesh; instanceId?: number } | undefined {

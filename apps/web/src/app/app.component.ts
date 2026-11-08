@@ -58,7 +58,7 @@ const categoryLabels: Record<NodeCategory, string> = {
         <atf-mind-map #mindMap *ngIf="viewMode === 'mind'" [graph]="graph" [filters]="filters" [selectedNodeId]="selectedNode?.id" [selectedEdgeId]="selectedEdge?.id" [labelMode]="mindMapLabelMode" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-mind-map>
         <atf-board-canvas #board *ngIf="viewMode === 'board'" [filters]="filters" [selectedNodeId]="selectedNode?.id" (graphLoaded)="onGraph($event)" (nodeSelected)="selectNode($event)" (edgeSelected)="selectEdge($event)"></atf-board-canvas>
         <section class="document-view" *ngIf="viewMode === 'document'" aria-label="Vue documentaire accessible">
-          <div class="document-card" *ngFor="let node of filteredNodes" tabindex="0" (click)="selectNode(node)" (keydown.enter)="selectNode(node)">
+          <div class="document-card" *ngFor="let node of filteredNodes" tabindex="0" role="button" (click)="selectNode(node)" (keydown.enter)="selectNode(node)" (keydown.space)="selectNode(node); $event.preventDefault()">
             <span [attr.data-category]="node.category">{{ categoryLabels[node.category] }}</span><h2>{{ node.label }}</h2><p *ngIf="node.description">{{ node.description }}</p>
           </div>
         </section>
